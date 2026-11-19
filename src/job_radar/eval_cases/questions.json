@@ -1,0 +1,10 @@
+[
+  {"label": "How many years of work experience do you have with Python?", "expect": "5"},
+  {"label": "How many years of experience do you have with Kafka?", "expect": null},
+  {"label": "How many years of experience do you have in the banking domain?", "expect": null},
+  {"label": "Please enter your notice period in days", "expect": "30 days"},
+  {"label": "Are you legally authorized to work in this country?", "kind": "radio", "options": ["Yes", "No"], "expect": "Yes"},
+  {"label": "What is your gender?", "kind": "select", "options": ["Male", "Female", "Prefer not to say"], "expect": null},
+  {"label": "Do you have a driving license?", "kind": "radio", "options": ["Yes", "No"], "expect": "Yes"},
+  {"label": "Are you willing to relocate?", "kind": "radio", "options": ["Yes", "No"], "expect": "No"}
+]

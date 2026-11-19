@@ -1,0 +1,26 @@
+<!doctype html><html><body>
+<h1>Synthetic job page</h1>
+<button aria-label="Easy Apply to this job" id="open">Easy Apply</button>
+<div role="dialog" id="dlg" style="display:none">
+  <div id="step1">
+    <p>Please enter your notice period in days</p>
+    <label for="notice">Notice period</label><input id="notice" name="notice" required>
+    <label for="skill">How many years of experience do you have with Python?</label><input id="skill" required>
+    <fieldset><legend>Are you legally authorized to work here?</legend>
+      <label for="a1"><input type="radio" id="a1" name="auth" value="Yes" required> Yes</label>
+      <label for="a2"><input type="radio" id="a2" name="auth" value="No"> No</label></fieldset>
+    <button id="next">Next</button>
+  </div>
+  <div id="step2" style="display:none">
+    <label for="phone">Phone</label><input id="phone" required>
+    <button id="submit">Submit application</button>
+  </div>
+  <div id="done" style="display:none">Your application was sent</div>
+</div>
+<script>
+document.getElementById('open').onclick=()=>{document.getElementById('dlg').style.display='block'};
+document.getElementById('next').onclick=()=>{
+  const i=document.getElementById('notice'); i.setAttribute('aria-invalid', i.value? 'false':'true');
+  if(!i.value) return; document.getElementById('step1').style.display='none'; document.getElementById('step2').style.display='block'};
+document.getElementById('submit').onclick=()=>{document.getElementById('step2').style.display='none'; document.getElementById('done').style.display='block'};
+</script></body></html>

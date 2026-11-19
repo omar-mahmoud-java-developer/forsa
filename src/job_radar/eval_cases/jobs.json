@@ -1,0 +1,7 @@
+[
+  {"job": {"id": "e1", "source": "eval", "title": "Backend Engineer", "company": "Acme", "location": "Berlin, Germany", "description": "Python, PostgreSQL, Docker, AWS. 4 years of experience.", "work_mode": "hybrid"}, "expect_tier": "best"},
+  {"job": {"id": "e2", "source": "eval", "title": "Software Engineer", "company": "Globex", "location": "Remote", "description": "Python services. 3 years of experience.", "work_mode": "remote"}, "expect_tier": "best"},
+  {"job": {"id": "e3", "source": "eval", "title": "Principal Architect", "company": "Initech", "location": "Munich, Germany", "description": "Lead architecture. 15+ years of experience.", "work_mode": "onsite"}, "expect_tier": "skip"},
+  {"job": {"id": "e4", "source": "eval", "title": "Backend Engineer", "company": "Example Staffing Ltd", "location": "Berlin, Germany", "description": "Python, Docker. 3 years.", "work_mode": "hybrid"}, "expect_tier": "skip"},
+  {"job": {"id": "e5", "source": "eval", "title": "Backend Engineer", "company": "Hooli", "location": "Berlin, Germany", "description": "Unpaid internship style role. Python.", "work_mode": "hybrid"}, "expect_tier": "skip"}
+]

@@ -1,0 +1,10 @@
+.git
+.venv
+.env
+data
+sessions
+output
+logs
+job-radar-report
+*report*.html
+tests

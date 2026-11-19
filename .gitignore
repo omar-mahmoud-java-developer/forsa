@@ -1,0 +1,39 @@
+# Safety net: private report output must never be committed
+job-radar-report/
+*report*.html
+
+# secrets and local state
+.env
+.env.*
+!.env.example
+data/
+state/
+logs/
+output/
+sessions/
+*.sqlite
+*.sqlite3
+*.db
+cookies*.json
+browser-profile/
+profile/
+profile.md
+config.json
+*.pdf
+*.docx
+cv/
+resume/
+drafts/
+# python / tooling
+.venv/
+__pycache__/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# your own customisations (may contain personal text); use `git add -f` to share on purpose
+plugins/
+templates/
