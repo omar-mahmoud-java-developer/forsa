@@ -27,10 +27,30 @@ CREATE INDEX IF NOT EXISTS attempts_job ON attempts(job_id, kind);
 CREATE TABLE IF NOT EXISTS flags (
   job_id TEXT NOT NULL, reason TEXT NOT NULL, at TEXT NOT NULL, PRIMARY KEY (job_id, reason)
 );
+CREATE TABLE IF NOT EXISTS applications (
+  key TEXT PRIMARY KEY, company TEXT, title TEXT, status TEXT NOT NULL, source TEXT, job_id TEXT,
+  created TEXT, updated TEXT
+);
+CREATE TABLE IF NOT EXISTS people (
+  username TEXT PRIMARY KEY, name TEXT, headline TEXT, location TEXT, degree TEXT, status TEXT NOT NULL,
+  first_seen TEXT, last_seen TEXT
+);
+CREATE TABLE IF NOT EXISTS mail_seen (msgid TEXT PRIMARY KEY, at TEXT);
 CREATE TABLE IF NOT EXISTS runs (
   id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, dry_run INTEGER NOT NULL, summary TEXT
 );
 """
+
+
+STATUS_RANK = {"applied": 1, "viewed": 2, "interview": 3, "offer": 4}
+
+
+def _advances(old: str, new: str) -> bool:
+    if new == "rejected":
+        return old != "offer"
+    if old == "rejected":
+        return False
+    return STATUS_RANK.get(new, 0) > STATUS_RANK.get(old, 0)
 
 
 def now() -> str:
@@ -118,6 +138,66 @@ class Store:
 
     def clear_flag(self, job_id: str, reason: str) -> None:
         self.db.execute("DELETE FROM flags WHERE job_id=? AND reason=?", (job_id, reason))
+        self.db.commit()
+
+    # ---- application tracker
+    def upsert_application(self, company: str, title: str, status: str, source: str = "", job_id: str = "") -> None:
+        """Add or advance an application. A status never moves backwards (offer > interview > viewed > applied)."""
+        key = f"{company.strip().lower()}|{title.strip().lower()}"
+        old = self.db.execute("SELECT status FROM applications WHERE key=?", (key,)).fetchone()
+        t = now()
+        if old is None:
+            self.db.execute("INSERT INTO applications VALUES (?,?,?,?,?,?,?,?)",
+                            (key, company.strip(), title.strip(), status, source, job_id, t, t))
+        elif _advances(old["status"], status):
+            self.db.execute("UPDATE applications SET status=?, updated=? WHERE key=?", (status, t, key))
+        self.db.commit()
+
+    def applications(self) -> list[dict]:
+        return [dict(r) for r in self.db.execute("SELECT * FROM applications ORDER BY updated DESC")]
+
+    # ---- recruiters / people (third-party data: minimal, purgeable)
+    def upsert_person(self, p: dict) -> bool:
+        t = now()
+        old = self.db.execute("SELECT 1 FROM people WHERE username=?", (p["username"],)).fetchone()
+        if old:
+            self.db.execute("UPDATE people SET last_seen=?, headline=?, location=? WHERE username=?",
+                            (t, p.get("headline", ""), p.get("location", ""), p["username"]))
+        else:
+            self.db.execute("INSERT INTO people VALUES (?,?,?,?,?,?,?,?)",
+                            (p["username"], p.get("name", ""), p.get("headline", ""), p.get("location", ""),
+                             p.get("degree", ""), "new", t, t))
+        self.db.commit()
+        return old is None
+
+    def people(self, status: str | None = None) -> list[dict]:
+        q, a = "SELECT * FROM people", []
+        if status:
+            q += " WHERE status=?"
+            a.append(status)
+        return [dict(r) for r in self.db.execute(q + " ORDER BY first_seen DESC", a)]
+
+    def set_person_status(self, username: str, status: str) -> None:
+        self.db.execute("UPDATE people SET status=? WHERE username=?", (status, username))
+        self.db.commit()
+
+    def purge_people(self, older_than_days: int) -> int:
+        """Delete contacts not seen for N days; N <= 0 deletes every stored contact."""
+        if older_than_days <= 0:
+            n = self.db.execute("DELETE FROM people").rowcount
+            self.db.commit()
+            return n
+        cut = (dt.datetime.now(dt.UTC) - dt.timedelta(days=older_than_days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        n = self.db.execute("DELETE FROM people WHERE last_seen < ?", (cut,)).rowcount
+        self.db.commit()
+        return n
+
+    # ---- mailbox bookkeeping
+    def mail_seen(self, msgid: str) -> bool:
+        return self.db.execute("SELECT 1 FROM mail_seen WHERE msgid=?", (msgid,)).fetchone() is not None
+
+    def mark_mail_seen(self, msgid: str) -> None:
+        self.db.execute("INSERT OR IGNORE INTO mail_seen VALUES (?,?)", (msgid, now()))
         self.db.commit()
 
     # ---- runs

@@ -70,11 +70,35 @@ def test_missing_answer_skips_and_flags(root, cfg, profile, store):
     assert "needs your answer" in (root / "output" / "digest.html").read_text()
 
 
-def test_nothing_is_sent_without_all_switches(cfg):
+def test_digest_goes_only_to_yourself_and_only_when_configured(cfg, monkeypatch):
     from job_radar import notify
-    assert notify.send_digest(cfg, "<p>x</p>", dry_run=True).startswith("not sent")
+
+    sent = []
+
+    class FakeSMTP:
+        def __init__(self, host, port, timeout=0):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            pass
+
+        def login(self, u, p):
+            pass
+
+        def send_message(self, msg):
+            sent.append(msg["To"])
+
+    monkeypatch.setattr(notify.smtplib, "SMTP_SSL", FakeSMTP)
+    assert notify.send_digest(cfg, "<p>x</p>", dry_run=True).startswith("not sent (notify.mode")
     cfg["notify"].update(mode="email", email_to="me@example.com")
-    assert "send_emails" in notify.send_digest(cfg, "<p>x</p>", dry_run=False)
+    assert "not set" in notify.send_digest(cfg, "<p>x</p>", dry_run=True)
+    monkeypatch.setenv("JOB_RADAR_SMTP_USER", "u@example.com")
+    monkeypatch.setenv("JOB_RADAR_SMTP_PASSWORD", "pw")
+    assert notify.send_digest(cfg, "<p>x</p>", dry_run=True) == "sent"  # allowed in dry-run: it is just you
+    assert sent == ["me@example.com"]  # the only possible recipient is notify.email_to
 
 
 def test_failing_source_does_not_stop_run(root, cfg, profile, store):

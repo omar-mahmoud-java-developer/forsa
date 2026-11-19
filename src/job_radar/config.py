@@ -45,6 +45,9 @@ DEFAULTS: dict[str, Any] = {
         "posted_within_days": 3,
         "max_pages": 2,
         "seniority": {"min_years": 0, "max_years": 99},
+        # read-only search for recruiters / hiring managers; off by default (stores third-party names locally)
+        "recruiters": {"enabled": False, "keywords": ["technical recruiter"], "locations": [], "max_per_run": 10,
+                       "keep_days": 30},
     },
     "scoring": {
         "title_match": 30,
@@ -55,6 +58,10 @@ DEFAULTS: dict[str, Any] = {
         "remote_bonus": 5,
         "thresholds": {"best": 70, "stretch": 50, "apply_min": 75},
     },
+    # read-only mailbox access (IMAP) for job-alert and application-status emails; off by default
+    "mailbox": {"enabled": False, "imap_host": "imap.gmail.com", "imap_port": 993,
+                "senders": ["linkedin.com"], "max_days": 3, "max_messages": 50, "require_auth": True,
+                "folders": ["INBOX"]},
     "schedule": {"times": ["09:00", "17:00"]},
     "language": "en",
     "sources": {"enabled": ["demo"], "linkedin": {"backend_order": ["mcp", "jina"]},
@@ -72,6 +79,10 @@ _SCHEMA_TYPES: dict[str, type | tuple[type, ...]] = {
     "search.excluded_keywords": list, "search.excluded_companies": list, "search.locations": list,
     "search.work_modes": list, "search.posted_within_days": int, "search.max_pages": int,
     "scoring.skills": dict, "schedule.times": list, "language": str, "sources.enabled": list,
+    "search.recruiters.enabled": bool, "search.recruiters.keywords": list, "search.recruiters.locations": list,
+    "search.recruiters.max_per_run": int, "search.recruiters.keep_days": int,
+    "mailbox.enabled": bool, "mailbox.imap_host": str, "mailbox.imap_port": int, "mailbox.senders": list,
+    "mailbox.max_days": int, "mailbox.max_messages": int, "mailbox.require_auth": bool, "mailbox.folders": list,
     "llm.provider": str, "llm.max_calls_per_run": int, "notify.mode": str, "notify.email_to": str,
 }
 LLM_PROVIDERS = ("none", "anthropic", "claude-cli")
@@ -170,4 +181,6 @@ def load_dotenv(path: str | Path) -> None:
         if not line or line.startswith("#") or "=" not in line:
             continue
         k, _, v = line.partition("=")
-        os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+        v = v.strip().strip('"').strip("'")
+        if v:  # an empty value means "not set"
+            os.environ.setdefault(k.strip(), v)

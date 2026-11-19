@@ -14,4 +14,6 @@ instead of opening a public issue. Include steps to reproduce. You will get an a
 ## Design rules that protect you
 - No LinkedIn password is stored or typed into this tool; you sign in through the MCP server's own flow.
 - LLM steps have no tools; untrusted text (job descriptions, pages) is fenced and never reaches an action.
+- Mailbox access is opt-in, read-only, limited to authenticated allow-listed senders and parsed without an LLM; recruiter
+  data is minimal, local and auto-expiring.
 - The Coach can only suggest changes, never to safety settings, and never commits.
