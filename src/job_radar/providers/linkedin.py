@@ -110,6 +110,13 @@ class LinkedInProvider(Provider):
         self.channel.used.append("mcp")
         return parse_detail(res, job)
 
+    def search_people(self, keywords: str, location: str = "") -> list[dict]:
+        from ..recruiters import parse_people  # noqa: PLC0415
+
+        res = self._open().call("search_people", keywords=keywords, location=location)
+        self.channel.used.append("mcp")
+        return parse_people(res)
+
     def connect(self, username: str, note: str | None = None) -> bool:
         res = self._open().call("connect_with_person", linkedin_username=username, note=note)
         text = str(res)[:300]

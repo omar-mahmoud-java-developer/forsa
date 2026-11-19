@@ -41,6 +41,10 @@ browser window (the tool never sees your password), then `job-radar doctor`.
 - Provider interface for new sources (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 - Coach: **suggests** config changes, can never change safety settings, never commits.
 - Eval suite with synthetic cases: `job-radar eval`.
+- **Dashboard** (`output/dashboard.html`): best jobs, application tracker, recruiters, what needs your answer. A static local file.
+- **Application tracker**: from your own applications, `job-radar track`, and (opt-in) read-only mailbox reading of job alerts and status emails.
+- **Recruiter discovery** (opt-in): read-only LinkedIn people search, stored locally with automatic expiry.
+- **Email digest to yourself** when you set `notify.email_to` and credentials in `.env`.
 
 ## Architecture
 
@@ -66,8 +70,8 @@ flowchart TD
   D -->|"true"| D2["rate-limited connect"] --> E{"safety.auto_apply?"}
   E -->|"false (default)"| F["digest"]
   E -->|"true"| E2["profile-only answers, daily cap, attempt cap"] --> F
-  F -->|"dry_run=true (default)"| G["written, not sent"]
-  F -->|"live + notify email + send_emails"| H["sent to YOU only"]
+  F --> G["written to output/ (+ dashboard.html)"]
+  F -->|"notify.mode = email"| H["sent to YOU only"]
 ```
 
 Reading and acting are separate: LLM steps read untrusted text and only write drafts/advice. Every action is
@@ -83,7 +87,8 @@ decided by plain code from config, profile and the store.
 | `safety.max_attempts_per_job` | 2 |
 | `safety.min_delay_seconds` / `max_delay_seconds` | 5 / 20 random delay between actions |
 | Answers to questions | only from `profile.md`; missing -> skip job and flag it |
-| Emails/messages to employers | never sent; drafts only |
+| Emails/messages to employers | never sent; drafts only. The digest goes only to your own `notify.email_to` |
+| Mailbox reading / recruiter search | off; read-only, authenticated senders only, no LLM, nothing stored but basics |
 | Coach | suggestions only; refuses `safety.*`; writes config without committing |
 | Dependencies | all pinned (`mcp-server-linkedin==4.29.0`, `mcp==2.3.0`, ...), no `@latest` |
 
@@ -106,7 +111,9 @@ decided by plain code from config, profile and the store.
 | `sources.enabled` | `demo`, `linkedin`, or your own provider |
 | `sources.linkedin.backend_order` | `["mcp", "jina"]` |
 | `llm.provider` | `none`, `anthropic`, `claude-cli`; `llm.max_calls_per_run` |
-| `notify.mode` | `none` or `email` (digest to yourself); credentials only in `.env` |
+| `notify.mode` | `none` or `email` (digest to yourself, also in dry-run); credentials only in `.env` |
+| `mailbox.*` | opt-in read-only IMAP: `enabled`, `senders`, `max_days`, `require_auth` |
+| `search.recruiters.*` | opt-in recruiter search: `enabled`, `keywords`, `locations`, `max_per_run`, `keep_days` |
 | `paths.*` | data, output and sessions folders (inside the project) |
 
 `.env` (placeholders in `.env.example`): `JOB_RADAR_SMTP_USER`, `JOB_RADAR_SMTP_PASSWORD`, `ANTHROPIC_API_KEY`.
@@ -124,7 +131,8 @@ Templates (cover letter, outreach, digest, prompts) can be overridden by copying
 
 `init` · `doctor` · `run [--dry-run]` · `digest [--send]` · `coach [--apply ID]` · `eval` · `status` ·
 `answer "question" "answer"` · `login [--status] [--apply-browser]` · `reset-session` · `schedule cron|systemd|windows` ·
-`providers` · `new-provider NAME` · `templates` · `privacy-check [--term WORD]`
+`providers` · `new-provider NAME` · `templates` · `privacy-check [--term WORD]` · `dashboard` · `applications` ·
+`track COMPANY TITLE [--status S]` · `people [list|purge --all]`
 
 ## Run on a schedule
 

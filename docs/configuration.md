@@ -13,6 +13,14 @@ Recipes:
 - **Seniority:** `search.seniority.max_years` is the most years of experience a job may ask for before it is penalised.
 - **Strictness:** raise `scoring.thresholds.best`; lower `apply_min` only if you accept more automatic applications.
 
+## Email digest, mailbox, recruiters, dashboard
+- **Digest to yourself:** `"notify": {"mode": "email", "email_to": "you@yourdomain"}` + `JOB_RADAR_SMTP_*` in `.env`.
+- **Track applications from email:** `"mailbox": {"enabled": true}` + `JOB_RADAR_IMAP_*` in `.env`. Reads job alerts and
+  "application viewed / not moving forward" emails (read-only) into the tracker. `job-radar applications`, `job-radar track`.
+- **Recruiters:** `"search": {"recruiters": {"enabled": true, "keywords": ["technical recruiter"]}}` (LinkedIn source).
+  `job-radar people` lists them; they are only contacted if you also enable `auto_connect` and go live.
+- **Dashboard:** rebuilt every run: open `output/dashboard.html` (or `job-radar dashboard`).
+
 ## .env
 `JOB_RADAR_SMTP_USER`, `JOB_RADAR_SMTP_PASSWORD` (digest to yourself), `ANTHROPIC_API_KEY` (LLM). Real environment
 variables win over `.env`.

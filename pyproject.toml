@@ -56,6 +56,8 @@ ignore = ["E741"]
 
 [tool.ruff.lint.per-file-ignores]
 "src/job_radar/apply/browser.py" = ["E501"]
+"src/job_radar/dashboard.py" = ["E501"]
+"src/job_radar/cli.py" = ["E501"]
 "src/job_radar/reach/base.py" = ["E501", "UP", "I"]
 "src/job_radar/reach/probe.py" = ["E501", "UP", "I"]
 "src/job_radar/reach/process.py" = ["E501", "UP", "I"]

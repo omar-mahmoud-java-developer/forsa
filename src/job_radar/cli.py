@@ -12,7 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import __version__, coach, doctor, privacy
+from . import __version__, coach, dashboard, doctor, privacy
 from . import config as cfgmod
 from . import profile as profmod
 from .paths import project_root, resolve
@@ -65,6 +65,10 @@ def cmd_init(a, root: Path) -> int:
         cfg["llm"]["provider"] = ask("LLM provider (none/anthropic/claude-cli)", "none")
         if ask("Email yourself a digest? (y/n)", "n").lower().startswith("y"):
             cfg["notify"].update(mode="email", email_to=ask("Your email address"))
+        if ask("Read job-alert / application emails (read-only, tracks your applications)? (y/n)", "n").lower().startswith("y"):
+            cfg["mailbox"]["enabled"] = True
+        if ask("Search LinkedIn for recruiters (read-only, stored locally)? (y/n)", "n").lower().startswith("y"):
+            cfg["search"]["recruiters"]["enabled"] = True
         if ask("Use LinkedIn as a source? (y/n)", "n").lower().startswith("y"):
             cfg["sources"]["enabled"] = ["linkedin"]
         name = ask("Your full name", "Jane Doe")
@@ -254,6 +258,42 @@ def cmd_privacy_check(a, root: Path) -> int:
     return 1 if findings else 0
 
 
+def cmd_dashboard(a, root: Path) -> int:
+    cfg, prof, store = _setup(root)
+    path = dashboard.write(root, cfg, store, prof.name)
+    print(f"wrote {path} (a local file: open it in your browser; nothing is served or sent)")
+    return 0
+
+
+def cmd_applications(a, root: Path) -> int:
+    _cfg, _prof, store = _setup(root)
+    apps = store.applications()
+    if not apps:
+        print("No applications tracked yet.")
+    for x in apps:
+        print(f"{x['status']:10} {x['company']} | {x['title']}  ({x['updated'][:10]}, {x['source']})")
+    return 0
+
+
+def cmd_track(a, root: Path) -> int:
+    """Add or update an application by hand: job-radar track "Company" "Role" --status interview."""
+    _cfg, _prof, store = _setup(root)
+    store.upsert_application(a.company, a.title, a.status, "manual")
+    print(f"tracked: {a.company} | {a.title} -> {a.status}")
+    return 0
+
+
+def cmd_people(a, root: Path) -> int:
+    cfg, _prof, store = _setup(root)
+    if a.action == "purge":
+        days = 0 if a.all else int(cfg["search"]["recruiters"]["keep_days"])
+        print(f"deleted {store.purge_people(days)} contact(s)" + (" (all)" if a.all else f" older than {days} days"))
+        return 0
+    for p in store.people():
+        print(f"{p['status']:7} {p['name']} - {p['headline']} ({p['location']}) /in/{p['username']}")
+    return 0
+
+
 def cmd_templates(a, root: Path) -> int:
     """Copy the default templates to ./templates so you can edit them (your copies win over the defaults)."""
     src = Path(__file__).parent / "default_templates"
@@ -320,6 +360,15 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--status", action="store_true")
     s.add_argument("--apply-browser", action="store_true", help="sign in for the experimental Easy Apply browser")
     sub.add_parser("reset-session", help="delete the local LinkedIn session folder")
+    sub.add_parser("dashboard", help="write output/dashboard.html (local file, no server)")
+    sub.add_parser("applications", help="list tracked applications")
+    s = sub.add_parser("track", help="add/update an application by hand")
+    s.add_argument("company")
+    s.add_argument("title")
+    s.add_argument("--status", default="applied", choices=["applied", "viewed", "interview", "offer", "rejected"])
+    s = sub.add_parser("people", help="list or delete discovered recruiters")
+    s.add_argument("action", choices=["list", "purge"], nargs="?", default="list")
+    s.add_argument("--all", action="store_true", help="with purge: delete every stored contact")
     sub.add_parser("templates", help="copy the default templates to ./templates so you can edit them")
     sub.add_parser("providers", help="list available sources (built in and from ./plugins)")
     s = sub.add_parser("new-provider", help="create ./plugins/NAME.py to add your own source")
@@ -337,7 +386,8 @@ def main(argv: list[str] | None = None) -> int:
     handler = {"init": cmd_init, "doctor": cmd_doctor, "run": cmd_run, "digest": cmd_digest, "coach": cmd_coach,
                "eval": cmd_eval, "status": cmd_status, "answer": cmd_answer, "login": cmd_login,
                "reset-session": cmd_reset_session, "schedule": cmd_schedule, "providers": cmd_providers,
-               "new-provider": cmd_new_provider, "templates": cmd_templates, "privacy-check": cmd_privacy_check}[args.cmd]
+               "new-provider": cmd_new_provider, "dashboard": cmd_dashboard, "applications": cmd_applications,
+               "track": cmd_track, "people": cmd_people, "templates": cmd_templates, "privacy-check": cmd_privacy_check}[args.cmd]
     try:
         return handler(args, root)
     except (cfgmod.ConfigError, profmod.ProfileError) as ex:

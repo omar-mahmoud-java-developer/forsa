@@ -52,15 +52,13 @@ def write_digest(root: Path, cfg: dict, html_text: str) -> Path:
     return p
 
 
-def send_digest(cfg: dict, html_text: str, dry_run: bool) -> str:
-    """Email the digest to the user. Returns a short status. Never sends in dry-run or when notifications are off."""
+def send_digest(cfg: dict, html_text: str, dry_run: bool = False) -> str:  # noqa: ARG001
+    """Email the digest to YOURSELF (notify.email_to) when notify.mode is "email". Returns a short status."""
     n = cfg["notify"]
-    if dry_run:
-        return "not sent (dry run)"
+    # The digest goes ONLY to the address you put in notify.email_to (yourself), so it is allowed in dry-run too.
+    # Emails to employers do not exist in this tool; safety.send_emails is reserved for that and stays false.
     if n["mode"] != "email":
         return "not sent (notify.mode is none)"
-    if not cfg["safety"]["send_emails"]:
-        return "not sent (safety.send_emails is false)"
     user, pw = cfgmod.env("JOB_RADAR_SMTP_USER"), cfgmod.env("JOB_RADAR_SMTP_PASSWORD")
     if not (user and pw):
         return "not sent (JOB_RADAR_SMTP_USER / PASSWORD not set)"

@@ -13,6 +13,8 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
 - Plugin system (`./plugins`, entry points), `rss` provider, `new-provider`, `providers`, `templates`.
 - `privacy-check` command and CI step; experimental Easy Apply browser driver (opt-in).
 - Docs, agent skill, `llms.txt`, issue/PR templates, DCO check, `tools/set_owner.py`.
+- Dashboard (`output/dashboard.html`), application tracker, opt-in read-only mailbox reader, opt-in recruiter search,
+  digest e-mail to yourself when configured.
 ### Fixed (compared with the private predecessor)
 - Easy Apply required-field detection uses attributes, not label text.
 - Job state and attempt counts are never pruned or wiped.

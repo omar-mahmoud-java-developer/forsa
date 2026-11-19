@@ -24,6 +24,10 @@ class Provider(ABC):
         """Optionally fill in the full description. Default: unchanged."""
         return job
 
+    def search_people(self, keywords: str, location: str = "") -> list[dict]:
+        """Recruiter/hiring-contact cards (read-only). Providers without people search return nothing."""
+        return []
+
     def connect(self, username: str, note: str | None = None) -> bool:
         """Send a connection request. Only called when safety allows it; most providers do not support it."""
         raise NotImplementedError(f"{self.name} does not support connect")

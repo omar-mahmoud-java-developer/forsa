@@ -95,6 +95,26 @@ def _check_smtp(cfg: dict, user: str, pw: str) -> Check:
                      "Check host/port and that the app password is valid.")
 
 
+def check_mailbox(cfg: dict | None) -> Check:
+    if not cfg or not cfg["mailbox"]["enabled"]:
+        return Check("mailbox", OFF, "mailbox reading is off (mailbox.enabled = false)")
+    user = os.environ.get("JOB_RADAR_IMAP_USER") or os.environ.get("JOB_RADAR_SMTP_USER")
+    pw = os.environ.get("JOB_RADAR_IMAP_PASSWORD") or os.environ.get("JOB_RADAR_SMTP_PASSWORD")
+    if not (user and pw):
+        return Check("mailbox", ERROR, "mailbox.enabled but no credentials in the environment",
+                     "Set JOB_RADAR_IMAP_USER and JOB_RADAR_IMAP_PASSWORD in .env (an app password of a dedicated mailbox).")
+    import imaplib  # noqa: PLC0415
+
+    mb = cfg["mailbox"]
+    try:
+        imap = imaplib.IMAP4_SSL(mb["imap_host"], int(mb["imap_port"]), timeout=20)
+        imap.login(user, pw)
+        imap.logout()
+    except (imaplib.IMAP4.error, OSError) as ex:
+        return Check("mailbox", ERROR, f"IMAP login failed: {str(ex)[:100]}", "Check host/port and the app password.")
+    return Check("mailbox", OK, f"IMAP login works; read-only, senders: {', '.join(mb['senders'])}")
+
+
 def check_paths(root: Path, cfg: dict | None) -> Check:
     if not cfg:
         return Check("paths", OFF, "skipped (no valid config)")
@@ -123,6 +143,7 @@ def run_all(root: Path, linkedin: bool | None = None, probe_linkedin: bool = Tru
     c, cfg = check_config(root)
     checks += [c, check_profile(root), check_paths(root, cfg)]
     checks += check_env(cfg)
+    checks.append(check_mailbox(cfg))
     checks.append(check_gitignore(root))
     enabled = cfg["sources"]["enabled"] if cfg else []
     if cfg:
