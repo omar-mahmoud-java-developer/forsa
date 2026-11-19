@@ -1,4 +1,4 @@
-# One command: docker compose up
+# One command: docker compose up   (run `job-radar init` once first so config.json and profile.md exist)
 # The image contains the agent AND the pinned LinkedIn MCP server (started by the agent over stdio).
 # LinkedIn sign-in needs a visible browser: run `job-radar login` once on your own machine (or
 # `docker compose run --rm login` with a display) and keep the ./sessions folder.
@@ -6,7 +6,9 @@ services:
   agent:
     build: .
     image: job-radar-agent:local
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     volumes:
       - ./config.json:/app/config.json:ro
       - ./profile.md:/app/profile.md:ro
@@ -18,7 +20,9 @@ services:
   doctor:
     build: .
     image: job-radar-agent:local
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     volumes:
       - ./config.json:/app/config.json:ro
       - ./profile.md:/app/profile.md:ro
