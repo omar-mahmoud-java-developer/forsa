@@ -33,9 +33,9 @@ dev = ["pytest==9.2.0", "ruff==0.17.5"]
 
 [project.urls]
 Author = "https://www.linkedin.com/in/omar-qenawy12/"
-Homepage = "https://github.com/[GITHUB_HANDLE]/forsa"
-Issues = "https://github.com/[GITHUB_HANDLE]/forsa/issues"
-Changelog = "https://github.com/[GITHUB_HANDLE]/forsa/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/omar-mahmoud-java-developer/forsa"
+Issues = "https://github.com/omar-mahmoud-java-developer/forsa/issues"
+Changelog = "https://github.com/omar-mahmoud-java-developer/forsa/blob/main/CHANGELOG.md"
 
 [project.scripts]
 forsa = "forsa.cli:main"
