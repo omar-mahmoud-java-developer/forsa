@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 import pytest
 
-from job_radar.reach import linkedin as li
-from job_radar.reach.base import Channel
-from job_radar.reach.probe import probe_command
-from job_radar.reach.web import WebChannel, looks_blocked, public_url
+from forsa.reach import linkedin as li
+from forsa.reach.base import Channel
+from forsa.reach.probe import probe_command
+from forsa.reach.web import WebChannel, looks_blocked, public_url
 
 
 def test_probe_missing_and_ok():
@@ -83,7 +83,7 @@ def test_jina_fallback_is_logged_and_read_only(caplog):
 
     ch = li.LinkedInChannel()
     ch.web.read = lambda url, opener=None: "text"  # no network
-    with caplog.at_level("INFO", logger="job_radar.reach"):
+    with caplog.at_level("INFO", logger="forsa.reach"):
         assert ch.public_page("https://www.linkedin.com/jobs/view/1/") == "text"
     assert ch.used == ["jina"] and "backend=jina" in caplog.text
 

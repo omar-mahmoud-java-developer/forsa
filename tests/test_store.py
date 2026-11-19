@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 
-from job_radar.store import Store
+from forsa.store import Store
 
 
 def row(i="a1", **kw):

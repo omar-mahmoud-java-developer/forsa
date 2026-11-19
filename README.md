@@ -1,4 +1,6 @@
-# Job Radar Agent
+# Forsa · فرصة
+
+*Forsa means "opportunity" in Arabic.* Created by [Omar Qenawy](https://www.linkedin.com/in/omar-qenawy12/).
 
 Self-hosted job-search agent: finds jobs, scores them against **your** profile, drafts applications and keeps
 you in control. **Dry-run by default. Nothing is sent, applied or connected until you switch it on.**
@@ -16,16 +18,16 @@ Linux, macOS and Windows.
 ## Quick start
 
 ```bash
-pipx install "job-radar-agent[linkedin]"      # or: pip install -e ".[dev]" from a clone
+pipx install "forsa[linkedin]"      # or: pip install -e ".[dev]" from a clone
 mkdir my-job-search && cd my-job-search
-job-radar init                                # questions -> config.json, profile.md, .env, then `doctor`
-job-radar run --dry-run                       # open output/digest.html
+forsa init                                # questions -> config.json, profile.md, .env, then `doctor`
+forsa run --dry-run                       # open output/digest.html
 ```
 
 Try it with no account at all: the default source is `demo` (synthetic jobs).
 
-To use LinkedIn: add `"linkedin"` to `sources.enabled`, run `job-radar login` and sign in yourself in the
-browser window (the tool never sees your password), then `job-radar doctor`.
+To use LinkedIn: add `"linkedin"` to `sources.enabled`, run `forsa login` and sign in yourself in the
+browser window (the tool never sees your password), then `forsa doctor`.
 
 ## Features
 
@@ -33,16 +35,16 @@ browser window (the tool never sees your password), then `job-radar doctor`.
 - Generic scoring (titles, skills with weights, years, locations, work mode, exclusions, thresholds) from config.
 - Persistent SQLite state with a permanent attempt limit: the same job is never applied to twice.
 - `profile.md` is the only source of truth for application answers; unknown answers skip the job and are
-  flagged in the digest (`job-radar answer "question" "answer"`).
+  flagged in the digest (`forsa answer "question" "answer"`).
 - `doctor` checks Python, config, profile, paths, email, LLM, git ignore rules and the LinkedIn MCP server,
   and prints how to fix each problem.
 - Automatic backend fallback: MCP -> read-only Jina Reader for public pages, with the backend logged.
 - Shared retries, timeouts, random delays, rate limits and a circuit breaker.
 - Provider interface for new sources (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 - Coach: **suggests** config changes, can never change safety settings, never commits.
-- Eval suite with synthetic cases: `job-radar eval`.
+- Eval suite with synthetic cases: `forsa eval`.
 - **Dashboard** (`output/dashboard.html`): best jobs, application tracker, recruiters, what needs your answer. A static local file.
-- **Application tracker**: from your own applications, `job-radar track`, and (opt-in) read-only mailbox reading of job alerts and status emails.
+- **Application tracker**: from your own applications, `forsa track`, and (opt-in) read-only mailbox reading of job alerts and status emails.
 - **Recruiter discovery** (opt-in): read-only LinkedIn people search, stored locally with automatic expiry.
 - **Email digest to yourself** when you set `notify.email_to` and credentials in `.env`.
 
@@ -50,9 +52,9 @@ browser window (the tool never sees your password), then `job-radar doctor`.
 
 ```mermaid
 flowchart LR
-  CLI["job-radar CLI"] --> P["pipeline"]
+  CLI["forsa CLI"] --> P["pipeline"]
   P --> PR["providers (demo, linkedin, yours)"]
-  PR --> R["job_radar/reach (derived from Agent Reach)"]
+  PR --> R["forsa/reach (derived from Agent Reach)"]
   R -->|"MCP python client, stdio"| M["mcp-server-linkedin==4.29.0 (pinned)"]
   R -->|"fallback, read-only"| J["Jina Reader (public pages)"]
   M --> L["LinkedIn (you sign in yourself)"]
@@ -106,7 +108,7 @@ decided by plain code from config, profile and the store.
 | `search.seniority.min_years` / `max_years` | experience range you accept |
 | `scoring.title_match`, `skills{}`, `years_fit`, `years_over_penalty`, `location_match`, `remote_bonus` | weights |
 | `scoring.thresholds` | `best`, `stretch`, `apply_min` |
-| `schedule.times` | used by `job-radar schedule ...` |
+| `schedule.times` | used by `forsa schedule ...` |
 | `language` | language of outputs |
 | `sources.enabled` | `demo`, `linkedin`, or your own provider |
 | `sources.linkedin.backend_order` | `["mcp", "jina"]` |
@@ -116,16 +118,16 @@ decided by plain code from config, profile and the store.
 | `search.recruiters.*` | opt-in recruiter search: `enabled`, `keywords`, `locations`, `max_per_run`, `keep_days` |
 | `paths.*` | data, output and sessions folders (inside the project) |
 
-`.env` (placeholders in `.env.example`): `JOB_RADAR_SMTP_USER`, `JOB_RADAR_SMTP_PASSWORD`, `ANTHROPIC_API_KEY`.
+`.env` (placeholders in `.env.example`): `FORSA_SMTP_USER`, `FORSA_SMTP_PASSWORD`, `ANTHROPIC_API_KEY`.
 `profile.md` (see `profile.example.md`, a fake candidate) holds your facts, skills with years and saved answers.
 Templates (cover letter, outreach, digest, prompts) can be overridden by copying them into `./templates/`.
 
 ## Make it yours
 
-- **Your profile and filters:** `job-radar init`, then edit `profile.md` and `config.json` (any role, country, stack).
-- **Your own job source:** `job-radar new-provider myboard` creates `plugins/myboard.py`; or use the built-in `rss` source for any feed.
-- **Your wording:** `job-radar templates` copies the cover-letter, outreach, digest and prompt templates into `./templates/`.
-- **Before you share your folder or fork:** `job-radar privacy-check --term "your name"`.
+- **Your profile and filters:** `forsa init`, then edit `profile.md` and `config.json` (any role, country, stack).
+- **Your own job source:** `forsa new-provider myboard` creates `plugins/myboard.py`; or use the built-in `rss` source for any feed.
+- **Your wording:** `forsa templates` copies the cover-letter, outreach, digest and prompt templates into `./templates/`.
+- **Before you share your folder or fork:** `forsa privacy-check --term "your name"`.
 
 ## Commands
 
@@ -136,29 +138,33 @@ Templates (cover letter, outreach, digest, prompts) can be overridden by copying
 
 ## Run on a schedule
 
-`job-radar schedule cron`, `... systemd`, or `... windows` prints snippets with your paths and times.
+`forsa schedule cron`, `... systemd`, or `... windows` prints snippets with your paths and times.
 Templates are in [scheduling/](scheduling/). Docker: `docker compose up` runs the agent and the pinned
 LinkedIn MCP server in one container (sign in once on your machine and keep `./sessions`).
 
 ## Sessions
 
-LinkedIn sessions live only in the git-ignored `sessions/` folder. Reset: `job-radar reset-session`, then
-`job-radar login`. No password or cookie is ever stored in config or env.
+LinkedIn sessions live only in the git-ignored `sessions/` folder. Reset: `forsa reset-session`, then
+`forsa login`. No password or cookie is ever stored in config or env.
 
 ## Credits and licenses
 
 - [Agent Reach](https://github.com/Panniantong/Agent-Reach) (MIT, Copyright (c) 2025 Agent Eyes): parts of
-  `src/job_radar/reach/` are derived from v1.5.0, commit `f65526cbaaad3879473acc1ba6dbefd195caf2be`.
+  `src/forsa/reach/` are derived from v1.5.0, commit `f65526cbaaad3879473acc1ba6dbefd195caf2be`.
 - [linkedin-mcp-server](https://github.com/stickerdaniel/linkedin-mcp-server) (Apache-2.0, Daniel Sticker):
   installed as a pinned dependency, not vendored.
 - See [NOTICE](NOTICE) and [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES). This project is MIT licensed
-  ([LICENSE](LICENSE)). "Job Radar Agent" is the name of this project; forks should use another name.
+  ([LICENSE](LICENSE)). "Forsa" is the name of this project; forks should use another name.
 
 ## FAQ
 
 **Will my account be banned?** It can be. See the disclaimer; use dry-run, low limits, a secondary account.
 **Does it email employers?** No. It writes drafts. **Where is my data?** `data/`, `output/`, `sessions/`
 on your machine, all git-ignored. **Why no Node/mcporter?** The official Python MCP client talks to the server directly.
+
+## Author
+
+**Omar Qenawy** - creator and maintainer · [LinkedIn](https://www.linkedin.com/in/omar-qenawy12/) · see [AUTHORS](AUTHORS.md).
 
 ## Contributing, security, license
 

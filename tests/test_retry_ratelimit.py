@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 import random
 
 import pytest
 
-from job_radar.retry import RateLimiter, RetryPolicy, call_with_retry
+from forsa.retry import RateLimiter, RetryPolicy, call_with_retry
 
 
 def test_retry_then_success():

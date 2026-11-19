@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 import copy
 import json
 
 import pytest
 
-from job_radar import config as cfgmod
+from forsa import config as cfgmod
 
 
 def test_defaults_are_safe():
@@ -42,7 +42,7 @@ def test_wrong_type_and_ranges(cfg):
 
 
 def test_missing_file_message(tmp_path):
-    with pytest.raises(cfgmod.ConfigError, match="job-radar init"):
+    with pytest.raises(cfgmod.ConfigError, match="forsa init"):
         cfgmod.load(tmp_path / "nope.json")
 
 

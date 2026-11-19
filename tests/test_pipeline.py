@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 import json
 
-from job_radar import pipeline
-from job_radar.apply.forms import FormField
-from job_radar.providers import base as pb
-from job_radar.providers import demo  # noqa: F401
-from job_radar.store import Store
+from forsa import pipeline
+from forsa.apply.forms import FormField
+from forsa.providers import base as pb
+from forsa.providers import demo  # noqa: F401
+from forsa.store import Store
 
 from .test_runner import FakeDriver
 
@@ -71,7 +71,7 @@ def test_missing_answer_skips_and_flags(root, cfg, profile, store):
 
 
 def test_digest_goes_only_to_yourself_and_only_when_configured(cfg, monkeypatch):
-    from job_radar import notify
+    from forsa import notify
 
     sent = []
 
@@ -95,8 +95,8 @@ def test_digest_goes_only_to_yourself_and_only_when_configured(cfg, monkeypatch)
     assert notify.send_digest(cfg, "<p>x</p>", dry_run=True).startswith("not sent (notify.mode")
     cfg["notify"].update(mode="email", email_to="me@example.com")
     assert "not set" in notify.send_digest(cfg, "<p>x</p>", dry_run=True)
-    monkeypatch.setenv("JOB_RADAR_SMTP_USER", "u@example.com")
-    monkeypatch.setenv("JOB_RADAR_SMTP_PASSWORD", "pw")
+    monkeypatch.setenv("FORSA_SMTP_USER", "u@example.com")
+    monkeypatch.setenv("FORSA_SMTP_PASSWORD", "pw")
     assert notify.send_digest(cfg, "<p>x</p>", dry_run=True) == "sent"  # allowed in dry-run: it is just you
     assert sent == ["me@example.com"]  # the only possible recipient is notify.email_to
 

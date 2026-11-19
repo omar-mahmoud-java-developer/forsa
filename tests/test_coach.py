@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 import json
 
 import pytest
 
-from job_radar import coach
-from job_radar.config import SAFETY_KEYS
+from forsa import coach
+from forsa.config import SAFETY_KEYS
 
 from .test_store import row
 

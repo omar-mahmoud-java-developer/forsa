@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 """Guards the public repo: no personal data, absolute home paths or real-looking secrets in tracked sources."""
 
 import re
@@ -36,7 +36,7 @@ def test_only_placeholder_emails():
 
 
 def test_examples_in_sync_with_packaged_copies():
-    pkg = ROOT / "src" / "job_radar" / "examples"
+    pkg = ROOT / "src" / "forsa" / "examples"
     for name in ("config.example.json", "profile.example.md", ".env.example"):
         assert (ROOT / name).read_text() == (pkg / name).read_text(), name
 

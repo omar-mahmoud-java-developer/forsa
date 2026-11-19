@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 """Runs the real browser driver against a LOCAL synthetic page (skipped when no browser is installed)."""
 from pathlib import Path
 
@@ -7,9 +7,9 @@ import pytest
 
 pw = pytest.importorskip("patchright.sync_api")
 
-from job_radar.apply.browser import PatchrightDriver  # noqa: E402
-from job_radar.apply.runner import run_application  # noqa: E402
-from job_radar.models import Job  # noqa: E402
+from forsa.apply.browser import PatchrightDriver  # noqa: E402
+from forsa.apply.runner import run_application  # noqa: E402
+from forsa.models import Job  # noqa: E402
 
 PAGE = (Path(__file__).parent / "site" / "job.html").resolve().as_uri()
 

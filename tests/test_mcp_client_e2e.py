@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 import sys
 from pathlib import Path
 
@@ -7,9 +7,9 @@ import pytest
 
 pytest.importorskip("mcp")  # provided by the [linkedin] extra
 
-from job_radar.providers.linkedin import LinkedInProvider  # noqa: E402
-from job_radar.reach.mcp_client import McpSession, McpUnavailable  # noqa: E402
-from job_radar.retry import CircuitBreaker, CircuitOpen, RetryPolicy  # noqa: E402
+from forsa.providers.linkedin import LinkedInProvider  # noqa: E402
+from forsa.reach.mcp_client import McpSession, McpUnavailable  # noqa: E402
+from forsa.retry import CircuitBreaker, CircuitOpen, RetryPolicy  # noqa: E402
 
 SERVER = str(Path(__file__).with_name("fake_mcp_server.py"))
 

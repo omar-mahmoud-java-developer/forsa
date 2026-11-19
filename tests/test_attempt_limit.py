@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
-from job_radar.pipeline import candidates_for_apply
+# Copyright (c) 2026 Omar Qenawy
+from forsa.pipeline import candidates_for_apply
 
 from .test_store import row
 

@@ -1,4 +1,4 @@
-# Job Radar Agent
+# Forsa
 > Self-hosted, safe-by-default job-search agent (CLI). Dry-run by default; answers only from the user's profile.md.
 
 - [README](README.md): overview, quick start, config reference

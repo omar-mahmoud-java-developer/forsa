@@ -20,8 +20,8 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: ruff check .
       - run: pytest
-      - run: job-radar eval
-      - run: job-radar privacy-check
+      - run: forsa eval
+      - run: forsa privacy-check
   secret-scan:
     runs-on: ubuntu-latest
     steps:

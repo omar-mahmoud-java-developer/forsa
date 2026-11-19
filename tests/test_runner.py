@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
-from job_radar.apply.forms import FormField
-from job_radar.apply.runner import run_application
-from job_radar.models import Job
+# Copyright (c) 2026 Omar Qenawy
+from forsa.apply.forms import FormField
+from forsa.apply.runner import run_application
+from forsa.models import Job
 
 
 class FakeDriver:

@@ -1,2 +1,2 @@
 # crontab -e   (09:00 and 17:00 every day)
-0 9,17 * * * cd @PROJECT_DIR@ && @PYTHON@ -m job_radar run >> logs/cron.log 2>&1
+0 9,17 * * * cd @PROJECT_DIR@ && @PYTHON@ -m forsa run >> logs/cron.log 2>&1
