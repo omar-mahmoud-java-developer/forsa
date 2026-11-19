@@ -5,9 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from job_radar.providers.linkedin import LinkedInProvider
-from job_radar.reach.mcp_client import McpSession, McpUnavailable
-from job_radar.retry import CircuitBreaker, CircuitOpen, RetryPolicy
+pytest.importorskip("mcp")  # provided by the [linkedin] extra
+
+from job_radar.providers.linkedin import LinkedInProvider  # noqa: E402
+from job_radar.reach.mcp_client import McpSession, McpUnavailable  # noqa: E402
+from job_radar.retry import CircuitBreaker, CircuitOpen, RetryPolicy  # noqa: E402
 
 SERVER = str(Path(__file__).with_name("fake_mcp_server.py"))
 
