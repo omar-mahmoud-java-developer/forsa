@@ -26,6 +26,13 @@ forsa run --dry-run                       # open output/digest.html
 
 Try it with no account at all: the default source is `demo` (synthetic jobs).
 
+**Docker (no Python needed):**
+```bash
+docker run --rm -v "$PWD":/w -e FORSA_HOME=/w ghcr.io/omar-mahmoud-java-developer/forsa:v0.1.0 init --yes
+docker run --rm -v "$PWD":/w -e FORSA_HOME=/w ghcr.io/omar-mahmoud-java-developer/forsa:v0.1.0 run --dry-run
+```
+(`/w` must be writable by uid 1000.) Prebuilt wheels are attached to each [release](https://github.com/omar-mahmoud-java-developer/forsa/releases).
+
 To use LinkedIn: add `"linkedin"` to `sources.enabled`, run `forsa login` and sign in yourself in the
 browser window (the tool never sees your password), then `forsa doctor`.
 
