@@ -1,5 +1,5 @@
 [Unit]
-Description=Job Radar schedule
+Description=Forsa schedule
 
 [Timer]
 OnCalendar=*-*-* 09:00:00

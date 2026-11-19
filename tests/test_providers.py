@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 import pytest
 
-from job_radar.models import Job
-from job_radar.providers import base as pb
-from job_radar.providers import demo  # noqa: F401
-from job_radar.providers.linkedin import LinkedInProvider, parse_detail, parse_search
-from job_radar.retry import CircuitBreaker, CircuitOpen
+from forsa.models import Job
+from forsa.providers import base as pb
+from forsa.providers import demo  # noqa: F401
+from forsa.providers.linkedin import LinkedInProvider, parse_detail, parse_search
+from forsa.retry import CircuitBreaker, CircuitOpen
 
 SEARCH = {"references": {"r": [
     {"kind": "job", "url": "/jobs/view/111/", "text": "Backend Engineer with verification"},

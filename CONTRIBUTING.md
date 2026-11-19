@@ -4,7 +4,7 @@
 ```bash
 python -m venv .venv && . .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
-ruff check . && pytest && job-radar eval
+ruff check . && pytest && forsa eval
 ```
 
 ## Ground rules
@@ -17,9 +17,9 @@ ruff check . && pytest && job-radar eval
   this project's MIT license and that you have the right to submit it.
 
 ## Add a new source provider (Bayt, Wuzzuf, Indeed, ...)
-Quick local try: `job-radar new-provider NAME` creates `plugins/NAME.py`. To contribute it to the project:
+Quick local try: `forsa new-provider NAME` creates `plugins/NAME.py`. To contribute it to the project:
 
-1. Create `src/job_radar/providers/<name>.py`:
+1. Create `src/forsa/providers/<name>.py`:
    ```python
    from ..models import Job
    from .base import Provider, register

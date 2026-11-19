@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
-from job_radar.llm import LLM, fence, validate_text
+# Copyright (c) 2026 Omar Qenawy
+from forsa.llm import LLM, fence, validate_text
 
 
 def test_fence_strips_fake_tags():
@@ -27,6 +27,6 @@ def test_output_validation():
 
 
 def test_llm_has_no_tool_interface():
-    import job_radar.llm as m
+    import forsa.llm as m
     src = open(m.__file__).read()
     assert "tools=" not in src.replace('"--tools", ""', "")  # no tools are ever passed to the SDK

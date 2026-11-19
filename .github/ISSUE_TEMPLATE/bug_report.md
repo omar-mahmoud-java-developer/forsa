@@ -5,8 +5,8 @@ labels: bug
 ---
 **What happened / expected**
 
-**Steps to reproduce** (use `job-radar run --dry-run` and fake data if you can)
+**Steps to reproduce** (use `forsa run --dry-run` and fake data if you can)
 
-**Output of `job-radar doctor`** (remove anything personal; never paste `.env`, `profile.md` or cookies)
+**Output of `forsa doctor`** (remove anything personal; never paste `.env`, `profile.md` or cookies)
 
 **OS and Python version**

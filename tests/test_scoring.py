@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
-from job_radar.models import Job
-from job_radar.scoring import required_years, score_job
+# Copyright (c) 2026 Omar Qenawy
+from forsa.models import Job
+from forsa.scoring import required_years, score_job
 
 
 def J(**kw):

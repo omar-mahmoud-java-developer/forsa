@@ -1,9 +1,9 @@
-# Copy to ~/.config/systemd/user/job-radar.service, then:
-#   systemctl --user daemon-reload && systemctl --user enable --now job-radar.timer
+# Copy to ~/.config/systemd/user/forsa.service, then:
+#   systemctl --user daemon-reload && systemctl --user enable --now forsa.timer
 [Unit]
-Description=Job Radar run
+Description=Forsa run
 
 [Service]
 Type=oneshot
 WorkingDirectory=@PROJECT_DIR@
-ExecStart=@PYTHON@ -m job_radar run
+ExecStart=@PYTHON@ -m forsa run

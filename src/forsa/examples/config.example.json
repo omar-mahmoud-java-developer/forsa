@@ -1,0 +1,125 @@
+{
+  "_help": "Copy to config.json (forsa init does it). Unknown keys are errors. Secrets never go here: use .env.",
+  "safety": {
+    "dry_run": true,
+    "auto_apply": false,
+    "auto_connect": false,
+    "send_emails": false,
+    "max_applications_per_day": 3,
+    "max_connects_per_day": 5,
+    "max_attempts_per_job": 2,
+    "min_delay_seconds": 5,
+    "max_delay_seconds": 20
+  },
+  "search": {
+    "titles": [
+      "Backend Engineer",
+      "Software Engineer"
+    ],
+    "keywords": [
+      "python",
+      "api"
+    ],
+    "excluded_keywords": [
+      "unpaid",
+      "commission only"
+    ],
+    "excluded_companies": [
+      "Example Staffing Ltd"
+    ],
+    "locations": [
+      {
+        "name": "Berlin, Germany"
+      },
+      {
+        "name": "Remote"
+      }
+    ],
+    "work_modes": [
+      "remote",
+      "hybrid"
+    ],
+    "posted_within_days": 3,
+    "max_pages": 2,
+    "seniority": {
+      "min_years": 2,
+      "max_years": 6
+    },
+    "recruiters": {
+      "enabled": false,
+      "keywords": [
+        "technical recruiter"
+      ],
+      "locations": [],
+      "max_per_run": 10,
+      "keep_days": 30
+    }
+  },
+  "scoring": {
+    "title_match": 30,
+    "skills": {
+      "python": 8,
+      "postgresql": 4,
+      "docker": 3,
+      "aws": 3,
+      "kubernetes": 2
+    },
+    "years_fit": 20,
+    "years_over_penalty": -20,
+    "location_match": 15,
+    "remote_bonus": 5,
+    "thresholds": {
+      "best": 70,
+      "stretch": 50,
+      "apply_min": 75
+    }
+  },
+  "mailbox": {
+    "enabled": false,
+    "imap_host": "imap.gmail.com",
+    "imap_port": 993,
+    "senders": [
+      "linkedin.com"
+    ],
+    "max_days": 3,
+    "max_messages": 50,
+    "require_auth": true,
+    "folders": [
+      "INBOX"
+    ]
+  },
+  "schedule": {
+    "times": [
+      "09:00",
+      "17:00"
+    ]
+  },
+  "language": "en",
+  "sources": {
+    "enabled": [
+      "demo"
+    ],
+    "linkedin": {
+      "backend_order": [
+        "mcp",
+        "jina"
+      ]
+    }
+  },
+  "llm": {
+    "provider": "none",
+    "model": "",
+    "max_calls_per_run": 10
+  },
+  "notify": {
+    "mode": "none",
+    "email_to": "",
+    "smtp_host": "smtp.gmail.com",
+    "smtp_port": 465
+  },
+  "paths": {
+    "data_dir": "data",
+    "output_dir": "output",
+    "sessions_dir": "sessions"
+  }
+}

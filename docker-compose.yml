@@ -1,11 +1,11 @@
-# One command: docker compose up   (run `job-radar init` once first so config.json and profile.md exist)
+# One command: docker compose up   (run `forsa init` once first so config.json and profile.md exist)
 # The image contains the agent AND the pinned LinkedIn MCP server (started by the agent over stdio).
-# LinkedIn sign-in needs a visible browser: run `job-radar login` once on your own machine (or
+# LinkedIn sign-in needs a visible browser: run `forsa login` once on your own machine (or
 # `docker compose run --rm login` with a display) and keep the ./sessions folder.
 services:
   agent:
     build: .
-    image: job-radar-agent:local
+    image: forsa:local
     env_file:
       - path: .env
         required: false
@@ -19,7 +19,7 @@ services:
     command: ["run", "--dry-run"]   # change to ["run"] only after you reviewed dry-run results
   doctor:
     build: .
-    image: job-radar-agent:local
+    image: forsa:local
     env_file:
       - path: .env
         required: false

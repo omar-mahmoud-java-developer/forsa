@@ -3,13 +3,14 @@ requires = ["hatchling==1.27.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "job-radar-agent"
+name = "forsa"
 version = "0.1.0"
 description = "Self-hosted job-search agent: finds jobs, scores them against your profile, drafts applications and keeps you in control. Dry-run by default."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
-authors = [{ name = "[YOUR NAME OR GITHUB HANDLE]" }]
+authors = [{ name = "Omar Qenawy" }]
+
 keywords = ["job-search", "automation", "mcp", "linkedin", "ai-agent", "self-hosted"]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -31,15 +32,16 @@ apply = ["patchright==1.64.4"]
 dev = ["pytest==9.2.0", "ruff==0.17.5"]
 
 [project.urls]
-Homepage = "https://github.com/[GITHUB_HANDLE]/job-radar-agent"
-Issues = "https://github.com/[GITHUB_HANDLE]/job-radar-agent/issues"
-Changelog = "https://github.com/[GITHUB_HANDLE]/job-radar-agent/blob/main/CHANGELOG.md"
+Author = "https://www.linkedin.com/in/omar-qenawy12/"
+Homepage = "https://github.com/[GITHUB_HANDLE]/forsa"
+Issues = "https://github.com/[GITHUB_HANDLE]/forsa/issues"
+Changelog = "https://github.com/[GITHUB_HANDLE]/forsa/blob/main/CHANGELOG.md"
 
 [project.scripts]
-job-radar = "job_radar.cli:main"
+forsa = "forsa.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/job_radar"]
+packages = ["src/forsa"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -55,9 +57,9 @@ select = ["E", "F", "I", "B", "UP"]
 ignore = ["E741"]
 
 [tool.ruff.lint.per-file-ignores]
-"src/job_radar/apply/browser.py" = ["E501"]
-"src/job_radar/dashboard.py" = ["E501"]
-"src/job_radar/cli.py" = ["E501"]
-"src/job_radar/reach/base.py" = ["E501", "UP", "I"]
-"src/job_radar/reach/probe.py" = ["E501", "UP", "I"]
-"src/job_radar/reach/process.py" = ["E501", "UP", "I"]
+"src/forsa/apply/browser.py" = ["E501"]
+"src/forsa/dashboard.py" = ["E501"]
+"src/forsa/cli.py" = ["E501"]
+"src/forsa/reach/base.py" = ["E501", "UP", "I"]
+"src/forsa/reach/probe.py" = ["E501", "UP", "I"]
+"src/forsa/reach/process.py" = ["E501", "UP", "I"]

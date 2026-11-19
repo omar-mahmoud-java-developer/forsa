@@ -1,5 +1,5 @@
 {
-  "_help": "Copy to config.json (job-radar init does it). Unknown keys are errors. Secrets never go here: use .env.",
+  "_help": "Copy to config.json (forsa init does it). Unknown keys are errors. Secrets never go here: use .env.",
   "safety": {
     "dry_run": true,
     "auto_apply": false,

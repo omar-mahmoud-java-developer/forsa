@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
-from job_radar.apply.forms import FormField, missing_required, validation_errors
+# Copyright (c) 2026 Omar Qenawy
+from forsa.apply.forms import FormField, missing_required, validation_errors
 
 
 def test_label_text_is_never_an_error():

@@ -14,15 +14,15 @@ Recipes:
 - **Strictness:** raise `scoring.thresholds.best`; lower `apply_min` only if you accept more automatic applications.
 
 ## Email digest, mailbox, recruiters, dashboard
-- **Digest to yourself:** `"notify": {"mode": "email", "email_to": "you@yourdomain"}` + `JOB_RADAR_SMTP_*` in `.env`.
-- **Track applications from email:** `"mailbox": {"enabled": true}` + `JOB_RADAR_IMAP_*` in `.env`. Reads job alerts and
-  "application viewed / not moving forward" emails (read-only) into the tracker. `job-radar applications`, `job-radar track`.
+- **Digest to yourself:** `"notify": {"mode": "email", "email_to": "you@yourdomain"}` + `FORSA_SMTP_*` in `.env`.
+- **Track applications from email:** `"mailbox": {"enabled": true}` + `FORSA_IMAP_*` in `.env`. Reads job alerts and
+  "application viewed / not moving forward" emails (read-only) into the tracker. `forsa applications`, `forsa track`.
 - **Recruiters:** `"search": {"recruiters": {"enabled": true, "keywords": ["technical recruiter"]}}` (LinkedIn source).
-  `job-radar people` lists them; they are only contacted if you also enable `auto_connect` and go live.
-- **Dashboard:** rebuilt every run: open `output/dashboard.html` (or `job-radar dashboard`).
+  `forsa people` lists them; they are only contacted if you also enable `auto_connect` and go live.
+- **Dashboard:** rebuilt every run: open `output/dashboard.html` (or `forsa dashboard`).
 
 ## .env
-`JOB_RADAR_SMTP_USER`, `JOB_RADAR_SMTP_PASSWORD` (digest to yourself), `ANTHROPIC_API_KEY` (LLM). Real environment
+`FORSA_SMTP_USER`, `FORSA_SMTP_PASSWORD` (digest to yourself), `ANTHROPIC_API_KEY` (LLM). Real environment
 variables win over `.env`.
 
 ## profile.md
@@ -39,5 +39,5 @@ Answers match when the key appears inside the question text (longest key wins). 
 Missing information is never guessed: the job is skipped and flagged in the digest.
 
 ## Templates
-`job-radar templates` copies the defaults (cover letter, outreach, digest, prompts) into `./templates/`; your copies
+`forsa templates` copies the defaults (cover letter, outreach, digest, prompts) into `./templates/`; your copies
 win. Placeholders look like `{name}`, `{role}`, `{company}`. A template with a missing value fails loudly.

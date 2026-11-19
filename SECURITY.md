@@ -6,7 +6,7 @@ instead of opening a public issue. Include steps to reproduce. You will get an a
 
 ## Never commit credentials or sessions
 - Secrets live only in `.env` (git-ignored). `.env.example` has placeholders only.
-- LinkedIn sessions live only in `sessions/` (git-ignored). Reset them with `job-radar reset-session`.
+- LinkedIn sessions live only in `sessions/` (git-ignored). Reset them with `forsa reset-session`.
 - Never paste cookies, app passwords, API keys or your `profile.md` in an issue. If you committed one by
   mistake, revoke it first, then rewrite history.
 - CI runs gitleaks on every push and pull request.

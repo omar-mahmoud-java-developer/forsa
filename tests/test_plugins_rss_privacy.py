@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 import json
 
 import pytest
 
-from job_radar import cli, privacy
-from job_radar.providers import base as pb
-from job_radar.providers import loader
-from job_radar.providers.rss import RssProvider, parse_feed
+from forsa import cli, privacy
+from forsa.providers import base as pb
+from forsa.providers import loader
+from forsa.providers.rss import RssProvider, parse_feed
 
 RSS = b"""<?xml version="1.0"?><rss version="2.0"><channel>
 <item><title>Backend Engineer</title><link>https://example.com/j/1</link>
@@ -96,7 +96,7 @@ def test_repo_itself_passes_privacy_check():
 
 
 def test_cli_new_provider_providers_and_privacy(tmp_path, monkeypatch, capsys):
-    monkeypatch.setenv("JOB_RADAR_HOME", str(tmp_path))
+    monkeypatch.setenv("FORSA_HOME", str(tmp_path))
     cli.main(["init", "--yes"])
     assert cli.main(["new-provider", "board2"]) == 0
     assert cli.main(["providers"]) == 0
@@ -108,5 +108,5 @@ def test_cli_new_provider_providers_and_privacy(tmp_path, monkeypatch, capsys):
     d = json.loads((tmp_path / "config.json").read_text())
     d["sources"]["enabled"] = ["rss"]
     (tmp_path / "config.json").write_text(json.dumps(d))
-    from job_radar import doctor
+    from forsa import doctor
     assert any(c.name == "rss" and c.status == "warn" for c in doctor.run_all(tmp_path, probe_linkedin=False))

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 [YOUR NAME OR GITHUB HANDLE]
+# Copyright (c) 2026 Omar Qenawy
 import pytest
 
-from job_radar.apply.answers import answer
-from job_radar.profile import Profile, parse
+from forsa.apply.answers import answer
+from forsa.profile import Profile, parse
 
 
 def A(label, profile, kind="text", options=()):
