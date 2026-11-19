@@ -14,6 +14,7 @@ from pathlib import Path
 from . import config as cfgmod
 from . import profile as profmod
 from .reach.mcp_client import SERVER_PIN, python_ok
+from .reach.web import tls_context
 
 OK, WARN, ERROR, OFF = "ok", "warn", "error", "off"
 
@@ -87,7 +88,8 @@ def check_env(cfg: dict | None) -> list[Check]:
 
 def _check_smtp(cfg: dict, user: str, pw: str) -> Check:
     try:
-        with smtplib.SMTP_SSL(cfg["notify"]["smtp_host"], int(cfg["notify"]["smtp_port"]), timeout=20) as s:
+        with smtplib.SMTP_SSL(cfg["notify"]["smtp_host"], int(cfg["notify"]["smtp_port"]), timeout=20,
+                              context=tls_context()) as s:
             s.login(user, pw)
         return Check("email", OK, "SMTP login works")
     except (smtplib.SMTPException, OSError) as ex:
@@ -107,7 +109,7 @@ def check_mailbox(cfg: dict | None) -> Check:
 
     mb = cfg["mailbox"]
     try:
-        imap = imaplib.IMAP4_SSL(mb["imap_host"], int(mb["imap_port"]), timeout=20)
+        imap = imaplib.IMAP4_SSL(mb["imap_host"], int(mb["imap_port"]), ssl_context=tls_context(), timeout=20)
         imap.login(user, pw)
         imap.logout()
     except (imaplib.IMAP4.error, OSError) as ex:
@@ -153,7 +155,7 @@ def run_all(root: Path, linkedin: bool | None = None, probe_linkedin: bool = Tru
         from .providers import loader  # noqa: PLC0415
         from .providers import rss as _r  # noqa: F401, PLC0415
 
-        problems = loader.load_plugins(root)
+        problems = loader.load_plugins(root, only=enabled)
         checks.append(Check("plugins", ERROR if problems else OK, "; ".join(problems) or "no plugin problems",
                             "Fix or delete the plugin file named above." if problems else ""))
         unknown = [n for n in enabled if n not in pbase.known()]

@@ -15,6 +15,10 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
 - Docs, agent skill, `llms.txt`, issue/PR templates, DCO check, `tools/set_owner.py`.
 - Dashboard (`output/dashboard.html`), application tracker, opt-in read-only mailbox reader, opt-in recruiter search,
   digest e-mail to yourself when configured.
+### Security
+- Pre-release audit: verified TLS for IMAP/SMTP, SSRF-safe fetching, defusedxml, linear-time mail parsing, safe links, path
+  confinement, opt-in plugin import, stricter config validation, hardened Docker image and pinned CI actions
+  (see docs/security-audit.md).
 ### Fixed (compared with the private predecessor)
 - Easy Apply required-field detection uses attributes, not label text.
 - Job state and attempt counts are never pruned or wiped.

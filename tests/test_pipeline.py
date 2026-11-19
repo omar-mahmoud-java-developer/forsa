@@ -76,8 +76,8 @@ def test_digest_goes_only_to_yourself_and_only_when_configured(cfg, monkeypatch)
     sent = []
 
     class FakeSMTP:
-        def __init__(self, host, port, timeout=0):
-            pass
+        def __init__(self, host, port, timeout=0, context=None):
+            assert context is not None and context.verify_mode == 2  # certificates are verified
 
         def __enter__(self):
             return self

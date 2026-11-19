@@ -48,3 +48,11 @@ def _isolated_environment():
     yield
     os.environ.clear()
     os.environ.update(saved)
+
+
+@pytest.fixture(autouse=True)
+def _offline_dns(monkeypatch):
+    """No test touches real DNS: every host resolves to a public address unless a test says otherwise."""
+    from forsa.reach import web
+
+    monkeypatch.setattr(web, "_resolve", lambda host: ["93.184.216.34"])

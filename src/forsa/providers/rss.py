@@ -8,10 +8,11 @@ import hashlib
 import html
 import re
 import urllib.request
-import xml.etree.ElementTree as ET  # noqa: S405 - feeds are small, fetched over https, size-capped
+
+from defusedxml import ElementTree as ET  # hardened parser: no DTD, entities or external resources
 
 from ..models import Job
-from ..reach.web import public_url
+from ..reach.web import open_public, public_url
 from .base import Provider, register
 
 MAX_BYTES = 2 * 1024 * 1024
@@ -35,7 +36,10 @@ def _link(el) -> str:
 
 
 def parse_feed(xml_bytes: bytes, source: str = "rss") -> list[Job]:
-    root = ET.fromstring(xml_bytes)  # noqa: S314
+    head = xml_bytes[:4096].lower()
+    if b"<!doctype" in head or b"<!entity" in head:
+        raise ValueError("feed rejected: DTD/entity declarations are not allowed")  # blocks XXE and entity bombs
+    root = ET.fromstring(xml_bytes)
     items = [e for e in root.iter() if e.tag.split("}")[-1] in ("item", "entry")]
     jobs = []
     for it in items:
@@ -47,17 +51,17 @@ def parse_feed(xml_bytes: bytes, source: str = "rss") -> list[Job]:
         desc = " ".join(desc.split())
         company = _text(it, "company", "author", "creator", "name")
         location = _text(it, "location", "region")
-        jid = "rss-" + hashlib.sha1((link or title).encode(), usedforsecurity=False).hexdigest()[:12]
+        jid = "rss-" + hashlib.sha256((link or title).encode()).hexdigest()[:12]
         mode = "remote" if re.search(r"\bremote\b", f"{title} {location} {desc[:300]}", re.I) else ""
         posted = _text(it, "pubDate", "updated", "published")
         jobs.append(Job(jid, source, title, company, location, link, desc, posted, mode))
     return jobs
 
 
-def fetch(url: str, opener=urllib.request.urlopen) -> bytes:
+def fetch(url: str, opener=None) -> bytes:
     headers = {"User-Agent": UA, "Accept": "application/rss+xml, application/atom+xml, */*"}
     req = urllib.request.Request(public_url(url), headers=headers)
-    with opener(req, timeout=30) as r:
+    with (opener or open_public)(req, timeout=30) as r:
         data = r.read(MAX_BYTES + 1)
     if len(data) > MAX_BYTES:
         raise ValueError("feed is too large")
@@ -69,7 +73,7 @@ class RssProvider(Provider):
     name = "rss"
     description = "RSS/Atom job feeds listed in sources.rss.feeds"
 
-    def __init__(self, feeds: list | None = None, opener=urllib.request.urlopen):
+    def __init__(self, feeds: list | None = None, opener=None):
         self.feeds, self._opener = feeds or [], opener
 
     def search(self, search_cfg: dict) -> list[Job]:

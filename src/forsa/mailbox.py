@@ -24,6 +24,9 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from email.message import Message
 from email.utils import parseaddr
+from html.parser import HTMLParser
+
+from .reach.web import tls_context
 
 MAX_MESSAGE_BYTES = 300_000
 
@@ -36,8 +39,7 @@ _REJECTED = re.compile(
     r"position has been filled|no longer under consideration", re.I)
 _INTERVIEW = re.compile(r"interview|invite you to|schedule a (?:call|chat|meeting)|assessment", re.I)
 _OFFER = re.compile(r"\b(?:job )?offer\b", re.I)
-_JOB_LINK = re.compile(
-    r"""href=["'][^"']*linkedin\.com/(?:comm/)?jobs/view/(\d{6,})[^"']*["'][^>]*>(.*?)</a>""", re.I | re.S)
+_JOB_HREF = re.compile(r"linkedin\.com/(?:comm/)?jobs/view/(\d{6,})", re.I)
 _GENERIC = re.compile(r"^(view|apply|see|more|details|open|show|job details|apply now|view job|view details)\b", re.I)
 _TAG = re.compile(r"<[^>]+>")
 
@@ -105,12 +107,46 @@ def classify(subject: str, body_text: str) -> Update | None:
     return Update(company.strip(" .:-"), title.strip(), status)
 
 
+class _AnchorCollector(HTMLParser):
+    """Linear-time anchor extraction (a regex over hostile HTML can take quadratic time)."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.links: list[tuple[str, str]] = []
+        self._href: str | None = None
+        self._text: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            self._flush()
+            self._href = dict(attrs).get("href") or ""
+            self._text = []
+
+    def handle_data(self, data):
+        if self._href is not None and sum(map(len, self._text)) < 300:
+            self._text.append(data)
+
+    def handle_endtag(self, tag):
+        if tag == "a":
+            self._flush()
+
+    def _flush(self):
+        if self._href is not None:
+            self.links.append((self._href, " ".join("".join(self._text).split())))
+        self._href, self._text = None, []
+
+
 def alert_jobs(html_body: str) -> list[AlertJob]:
-    """LinkedIn job links in an alert email (id + link text). Plain regex; nothing is executed or fetched."""
+    """LinkedIn job links in an alert email (id + link text). Nothing is executed or fetched."""
+    parser = _AnchorCollector()
+    parser.feed((html_body or "")[:MAX_MESSAGE_BYTES])
+    parser.close()
+    parser._flush()
     out, seen = [], set()
-    for m in _JOB_LINK.finditer(html_body or ""):
-        title = _clean(m.group(2))
-        if m.group(1) in seen or not title or _GENERIC.match(title):
+    for href, text in parser.links:
+        m = _JOB_HREF.search(href)
+        title = _clean(text)
+        if not m or m.group(1) in seen or not title or _GENERIC.match(title):
             continue
         seen.add(m.group(1))
         out.append(AlertJob(m.group(1), title[:120]))
@@ -135,12 +171,13 @@ def _body(msg: Message) -> tuple[str, str]:
 
 
 def read_mailbox(cfg: dict, user: str, password: str, seen: Callable[[str], bool] = lambda _id: False,
-                 imap_factory=imaplib.IMAP4_SSL, now: dt.datetime | None = None) -> MailResult:
+                 imap_factory=None, now: dt.datetime | None = None) -> MailResult:
     """Fetch recent messages read-only and turn them into updates and alert jobs."""
     mb = cfg["mailbox"]
     since = ((now or dt.datetime.now()) - dt.timedelta(days=int(mb["max_days"]))).strftime("%d-%b-%Y")
     result = MailResult()
-    imap = imap_factory(mb["imap_host"], int(mb["imap_port"]))
+    factory = imap_factory or (lambda h, p: imaplib.IMAP4_SSL(h, p, ssl_context=tls_context(), timeout=60))
+    imap = factory(mb["imap_host"], int(mb["imap_port"]))
     try:
         imap.login(user, password)
         for folder in mb["folders"]:

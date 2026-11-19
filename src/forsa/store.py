@@ -60,7 +60,7 @@ def now() -> str:
 class Store:
     def __init__(self, path: str | Path):
         if str(path) != ":memory:":
-            Path(path).parent.mkdir(parents=True, exist_ok=True)
+            Path(path).parent.mkdir(mode=0o700, parents=True, exist_ok=True)  # owner only
         self.db = sqlite3.connect(str(path))
         self.db.row_factory = sqlite3.Row
         self.db.executescript(_SCHEMA)

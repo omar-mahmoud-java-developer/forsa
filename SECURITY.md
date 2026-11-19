@@ -4,6 +4,9 @@
 Please report privately through GitHub "Report a vulnerability" (Security tab) on this repository
 instead of opening a public issue. Include steps to reproduce. You will get an answer within a week.
 
+## Audit
+See [docs/security-audit.md](docs/security-audit.md) for the tools used and what was fixed.
+
 ## Never commit credentials or sessions
 - Secrets live only in `.env` (git-ignored). `.env.example` has placeholders only.
 - LinkedIn sessions live only in `sessions/` (git-ignored). Reset them with `forsa reset-session`.

@@ -13,6 +13,8 @@ import html
 import json
 from pathlib import Path
 
+from .paths import resolve
+
 CSS = """
 :root{--bg:#f6f7f9;--panel:#fff;--text:#16181d;--muted:#5b6472;--line:#e3e6ec;--accent:#2457d6;--ok:#15803d;--warn:#a16207;--bad:#b91c1c}
 @media (prefers-color-scheme:dark){:root{--bg:#0f1115;--panel:#181b21;--text:#e8eaee;--muted:#9aa3b2;--line:#2a2f39;--accent:#7aa2ff;--ok:#4ade80;--warn:#facc15;--bad:#f87171}}
@@ -105,7 +107,7 @@ def build(store, cfg: dict, profile_name: str = "") -> str:
 
 
 def write(root: Path, cfg: dict, store, profile_name: str = "") -> Path:
-    out = root / cfg["paths"]["output_dir"]
+    out = resolve(root, cfg["paths"]["output_dir"])
     out.mkdir(parents=True, exist_ok=True)
     p = out / "dashboard.html"
     p.write_text(build(store, cfg, profile_name), encoding="utf-8")

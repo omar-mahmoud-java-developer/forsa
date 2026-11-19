@@ -10,6 +10,8 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /app
 COPY pyproject.toml README.md LICENSE NOTICE THIRD_PARTY_LICENSES ./
 COPY src ./src
+# Direct dependencies are pinned in the pyproject extras.
+# hadolint ignore=DL3013
 RUN pip install ".[linkedin,llm]" \
  && (patchright install --with-deps chromium || true)
 
@@ -18,9 +20,16 @@ COPY LICENSE NOTICE THIRD_PARTY_LICENSES /usr/share/licenses/forsa/
 RUN mkdir -p /usr/share/licenses/mcp-server-linkedin \
  && cp /usr/local/lib/python3.12/site-packages/mcp_server_linkedin-*.dist-info/licenses/* /usr/share/licenses/mcp-server-linkedin/
 
+# Security: pick up the fixed zlib from Debian (the base image is pinned by digest and can lag behind security updates).
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends --only-upgrade zlib1g \
+ && rm -rf /var/lib/apt/lists/*
+
 # data/, sessions/, output/ and config files are mounted, never baked into the image.
 RUN useradd --create-home runner && mkdir -p /app/data /app/sessions /app/output /app/logs && chown -R runner /app /opt/browsers
-USER runner
+USER 1000
+# One-shot batch container: there is no long-running service to probe.
+HEALTHCHECK NONE
 
 ENTRYPOINT ["forsa"]
 CMD ["run", "--dry-run"]

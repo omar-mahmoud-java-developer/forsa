@@ -7,6 +7,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -143,8 +144,24 @@ def validate(cfg: dict) -> list[str]:
     t = cfg["scoring"]["thresholds"]
     if not (t.get("stretch", 0) <= t.get("best", 0)):
         problems.append("scoring.thresholds: stretch must be <= best")
-    if s.get("auto_apply") and s.get("dry_run"):
-        pass  # allowed: dry-run simulates auto-apply
+    safe_sender = re.compile(r"[A-Za-z0-9._@-]+")
+    safe_folder = re.compile(r"[\w./\[\] -]+")  # e.g. INBOX or [Gmail]/All Mail
+    for v in cfg["mailbox"]["senders"]:
+        if not (isinstance(v, str) and safe_sender.fullmatch(v)):
+            problems.append(f"mailbox.senders contains an unsafe value: {str(v)[:30]!r}")
+    for v in cfg["mailbox"]["folders"]:
+        if not (isinstance(v, str) and safe_folder.fullmatch(v)):
+            problems.append(f"mailbox.folders contains an unsafe value: {str(v)[:30]!r}")
+    for k in ("imap_host",):
+        if not re.fullmatch(r"[A-Za-z0-9.-]+", str(cfg["mailbox"][k])):
+            problems.append(f"mailbox.{k} is not a valid host name")
+    if not re.fullmatch(r"[A-Za-z0-9.-]+", str(cfg["notify"]["smtp_host"])):
+        problems.append("notify.smtp_host is not a valid host name")
+    email_to = str(cfg["notify"]["email_to"])
+    if email_to and not re.fullmatch(r"[^@\s<>,;]+@[^@\s<>,;]+\.[^@\s<>,;]+", email_to):
+        problems.append("notify.email_to must be a single e-mail address")
+    if cfg["llm"]["model"] and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]*", str(cfg["llm"]["model"])):
+        problems.append("llm.model contains unsafe characters")
     return problems
 
 

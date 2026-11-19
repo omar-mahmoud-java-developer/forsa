@@ -15,3 +15,7 @@
 - The Coach only suggests; it refuses `safety.*` and any key outside the search/scoring lists; it never commits.
 - Secrets only in `.env`; sessions only in `sessions/`; both are git-ignored. `forsa privacy-check` scans your
   folder for personal data before you share it.
+
+- **Untrusted folders:** `config.json` and `plugins/` are executable configuration. Never run forsa in a folder or
+  repository you do not trust.
+- Jina Reader (`r.jina.ai`) is a third-party service: it sees the public URLs it is asked to read.

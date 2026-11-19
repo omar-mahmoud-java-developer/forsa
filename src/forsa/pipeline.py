@@ -20,6 +20,8 @@ from . import llm as llmmod
 from .apply.runner import FormDriver, run_application
 from .config import env
 from .models import Job
+from .notify import safe_name
+from .paths import resolve
 from .profile import Profile
 from .providers.base import Provider
 from .retry import CircuitOpen, RateLimiter
@@ -205,7 +207,7 @@ def _drafts(root, cfg, profile, store, llm, res) -> int:
     n = 0
     tpl = load(root, "prompts/cover.md")
     for j in store.jobs(tier="best")[:3]:
-        if (root / cfg["paths"]["output_dir"] / "drafts" / f"cover-{j['id']}.md").exists():
+        if (resolve(root, cfg["paths"]["output_dir"]) / "drafts" / f"cover-{safe_name(j['id'])}.md").exists():
             continue
         prompt = tpl.replace("{profile}", _profile_block(profile)).replace("{job}", _job_block(j))
         try:

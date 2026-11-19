@@ -17,13 +17,20 @@ log = logging.getLogger("forsa.plugins")
 ENTRY_GROUP = "forsa.providers"
 
 
-def load_plugins(root: Path) -> list[str]:
-    """Import ./plugins/*.py and entry points; return problems (a broken plugin never stops the agent)."""
-    problems: list[str] = []
+def plugin_files(root: Path) -> list[Path]:
     pdir = root / "plugins"
-    if pdir.is_dir():
-        for f in sorted(pdir.glob("*.py")):
-            if f.name.startswith("_"):
+    return sorted(f for f in pdir.glob("*.py") if not f.name.startswith("_")) if pdir.is_dir() else []
+
+
+def load_plugins(root: Path, only: list[str] | None = None) -> list[str]:
+    """Import the plugins you ENABLED (./plugins/<name>.py) and entry points; return problems.
+
+    Importing a plugin runs its code, so a plugin file is only imported when its name is listed in
+    sources.enabled. Never run forsa in a folder you do not trust."""
+    problems: list[str] = []
+    if True:
+        for f in plugin_files(root):
+            if only is not None and f.stem not in only:
                 continue
             try:
                 spec = importlib.util.spec_from_file_location(f"forsa_plugin_{f.stem}", f)

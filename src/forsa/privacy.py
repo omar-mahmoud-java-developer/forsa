@@ -61,7 +61,8 @@ def scan(root: Path, terms: list[str] | None = None) -> list[Finding]:
         except (UnicodeDecodeError, OSError):
             continue
         rel = str(p.relative_to(root))
-        for n, line in enumerate(text.splitlines(), 1):
+        for n, raw in enumerate(text.splitlines(), 1):
+            line = raw[:2000]  # bounded work per line (regexes on huge lines can be slow)
             for m in EMAIL.finditer(line):
                 if m.group(1).lower() not in OK_EMAIL_DOMAINS:
                     found.append(Finding(rel, n, "email", _mask(m.group(0))))

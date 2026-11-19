@@ -35,7 +35,7 @@ def _setup(root: Path):
 
 
 def _providers(root: Path, cfg: dict):
-    problems = loader.load_plugins(root)
+    problems = loader.load_plugins(root, only=cfg["sources"]["enabled"])
     for p in problems:
         logging.getLogger("forsa").warning(p)
     return [loader.create_from_config(name, root, cfg) for name in cfg["sources"]["enabled"]]
@@ -80,6 +80,10 @@ def cmd_init(a, root: Path) -> int:
     env_p = root / ".env"
     if not env_p.exists():
         shutil.copy(EXAMPLES / ".env.example", env_p)
+        try:
+            env_p.chmod(0o600)  # secrets: owner only (no effect on Windows)
+        except OSError:
+            pass
     print(f"Wrote {cfg_path.name}, {prof_path.name}, .env (all git-ignored). Safety: dry_run=true, auto_apply=false.")
     if "linkedin" in cfg["sources"]["enabled"] and not a.yes:
         if ask("Start the LinkedIn sign-in now? (y/n)", "n").lower().startswith("y"):
@@ -194,6 +198,9 @@ def cmd_status(a, root: Path) -> int:
 
 
 def cmd_answer(a, root: Path) -> int:
+    if any(c in (a.question + a.answer) for c in "\r\n"):
+        print("error: question and answer must be a single line")
+        return 2
     p = root / "profile.md"
     text = p.read_text(encoding="utf-8")
     line = f"- {a.question.strip().lower()}: {a.answer.strip()}\n"
@@ -210,7 +217,7 @@ def cmd_login(a, root: Path) -> int:
 
     cfg = cfgmod.load(root / "config.json")
     sessions = resolve(root, cfg["paths"]["sessions_dir"])
-    sessions.mkdir(parents=True, exist_ok=True)
+    sessions.mkdir(mode=0o700, parents=True, exist_ok=True)
     if getattr(a, "apply_browser", False):
         from .apply.browser import sign_in_interactively  # noqa: PLC0415
 
@@ -228,14 +235,17 @@ def cmd_login(a, root: Path) -> int:
 
 
 def cmd_providers(a, root: Path) -> int:
-    problems = loader.load_plugins(root)
     cfgmod.load_dotenv(root / ".env")
     try:
         enabled = cfgmod.load(root / "config.json")["sources"]["enabled"]
     except cfgmod.ConfigError:
         enabled = []
+    problems = loader.load_plugins(root, only=enabled)
     for name in provbase.known():
         print(f"{'*' if name in enabled else ' '} {name}")
+    files = [f.stem for f in loader.plugin_files(root)]
+    if files:
+        print("\nplugin files in ./plugins (imported only when listed in sources.enabled): " + ", ".join(files))
     print("\n* = enabled in config.json. Your own sources go in ./plugins/ (forsa new-provider NAME).")
     for p in problems:
         print(f"problem: {p}")

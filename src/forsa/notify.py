@@ -11,6 +11,9 @@ from email.message import EmailMessage
 from pathlib import Path
 
 from . import config as cfgmod
+from .dashboard import safe_url
+from .paths import resolve
+from .reach.web import tls_context
 from .templating import load, render
 
 
@@ -20,7 +23,8 @@ def _rows(jobs: list[dict]) -> str:
     items = "".join(
         f"<li><b>{html.escape(j['title'] or '')}</b> at {html.escape(j['company'] or '')} "
         f"({html.escape(j['location'] or '')}) score {j['score']} "
-        f"<a href='{html.escape(j['url'] or '')}'>link</a><br><small>{html.escape(j['why'] or '')}</small></li>"
+        f"<a href='{html.escape(safe_url(j['url'] or ''))}' rel='noopener noreferrer nofollow'>link</a>"
+        f"<br><small>{html.escape(j['why'] or '')}</small></li>"
         for j in jobs)
     return f"<ul>{items}</ul>"
 
@@ -45,7 +49,7 @@ def build_digest(root: Path, store, profile, cfg: dict, dry_run: bool, backends:
 
 
 def write_digest(root: Path, cfg: dict, html_text: str) -> Path:
-    out = root / cfg["paths"]["output_dir"]
+    out = resolve(root, cfg["paths"]["output_dir"])
     out.mkdir(parents=True, exist_ok=True)
     p = out / "digest.html"
     p.write_text(html_text, encoding="utf-8")
@@ -67,7 +71,7 @@ def send_digest(cfg: dict, html_text: str, dry_run: bool = False) -> str:  # noq
     msg.set_content("Open this digest in an HTML-capable mail app.")
     msg.add_alternative(html_text, subtype="html")
     try:
-        with smtplib.SMTP_SSL(n["smtp_host"], int(n["smtp_port"]), timeout=60) as s:
+        with smtplib.SMTP_SSL(n["smtp_host"], int(n["smtp_port"]), timeout=60, context=tls_context()) as s:
             s.login(user, pw)
             s.send_message(msg)
     except (smtplib.SMTPException, OSError) as ex:
@@ -75,11 +79,15 @@ def send_digest(cfg: dict, html_text: str, dry_run: bool = False) -> str:  # noq
     return "sent"
 
 
+def safe_name(value: str) -> str:
+    return "".join(c if c.isalnum() or c in "-_" else "_" for c in str(value))[:80]
+
+
 def save_draft(root: Path, cfg: dict, kind: str, job_id: str, text: str) -> Path:
     """Drafts are files for the user to review. Nothing is ever sent to an employer from here."""
-    d = root / cfg["paths"]["output_dir"] / "drafts"
+    d = resolve(root, cfg["paths"]["output_dir"]) / "drafts"
     d.mkdir(parents=True, exist_ok=True)
-    safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in job_id)
+    safe = safe_name(job_id)
     p = d / f"{kind}-{safe}.md"
     p.write_text(text.strip() + "\n", encoding="utf-8")
     return p
