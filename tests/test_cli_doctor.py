@@ -66,4 +66,5 @@ def test_banner_shows_project_and_author_on_stderr(tmp_path, monkeypatch, capsys
     cli.main(["init", "--yes"])
     cap = capsys.readouterr()
     assert "Forsa" in cap.err and "Omar Qenawy" in cap.err and "فرصة" in cap.err
+    assert "صَلِّ وَسَلِّمْ" in cap.err  # the author's sentence
     assert "Omar Qenawy" not in cap.out  # stdout stays clean for scripts

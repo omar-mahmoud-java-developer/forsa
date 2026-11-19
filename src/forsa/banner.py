@@ -12,7 +12,7 @@ PROJECT = "Forsa"
 PROJECT_AR = "فرصة"  # "opportunity"
 AUTHOR = "Omar Qenawy"
 AUTHOR_LINKEDIN = "https://www.linkedin.com/in/omar-qenawy12/"
-TAGLINE = ""  # one sentence shown under the name; set by the author
+TAGLINE = "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ ﷺ"  # one sentence shown under the name; set by the author
 
 
 def text() -> str:
