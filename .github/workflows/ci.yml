@@ -1,0 +1,46 @@
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: pytest
+      - run: job-radar eval
+      - run: job-radar privacy-check
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks (pinned release)
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz | tar -xz gitleaks
+          ./gitleaks detect --source . --redact --no-banner
+  dco:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Every commit must be signed off (DCO)
+        run: |
+          missing=$(git log --format='%H %s' ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} \
+            | while read sha rest; do git show -s --format=%B $sha | grep -q '^Signed-off-by: ' || echo "$sha"; done)
+          test -z "$missing" || { echo "Missing Signed-off-by on: $missing"; exit 1; }

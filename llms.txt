@@ -1,0 +1,9 @@
+# Job Radar Agent
+> Self-hosted, safe-by-default job-search agent (CLI). Dry-run by default; answers only from the user's profile.md.
+
+- [README](README.md): overview, quick start, config reference
+- [Install for agents](docs/install.md)
+- [Getting started](docs/getting-started.md)
+- [Configuration](docs/configuration.md)
+- [Adding sources](docs/adding-sources.md)
+- [Safety model](docs/safety.md)
