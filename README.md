@@ -18,7 +18,7 @@ Linux, macOS and Windows.
 ## Quick start
 
 ```bash
-pipx install "forsa[linkedin]"      # or: pip install -e ".[dev]" from a clone
+pipx install "forsa[linkedin] @ git+https://github.com/omar-mahmoud-java-developer/forsa.git"   # PyPI (`pipx install forsa`) once released
 mkdir my-job-search && cd my-job-search
 forsa init                                # questions -> config.json, profile.md, .env, then `doctor`
 forsa run --dry-run                       # open output/digest.html

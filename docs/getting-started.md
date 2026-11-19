@@ -4,7 +4,8 @@ You need Python 3.11+ (3.12.4+ for the LinkedIn source). Windows, macOS and Linu
 
 ## 1. Install
 ```bash
-pipx install "forsa[linkedin]"        # or: pip install "forsa[linkedin]"
+pipx install "forsa[linkedin] @ git+https://github.com/omar-mahmoud-java-developer/forsa.git"
+# after the first PyPI release: pipx install "forsa[linkedin]"
 ```
 From a clone: `pip install -e ".[dev]"`. Extras: `[linkedin]` (MCP client + pinned server), `[llm]` (Anthropic API),
 `[apply]` (experimental Easy Apply browser).
