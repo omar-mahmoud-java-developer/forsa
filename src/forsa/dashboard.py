@@ -55,6 +55,11 @@ def _table(head: list[str], rows: list[list[str]], empty: str) -> str:
     return f'<div class="wrap"><table><thead><tr>{th}</tr></thead><tbody>{body}</tbody></table></div>'
 
 
+def _opinion(store, job: dict) -> str:
+    v = store.judge(job["id"])
+    return f" · LLM opinion: {v['fit']} ({v['reason']})" if v else ""
+
+
 def pill(label: str) -> str:
     return f'<span class="pill {esc(label)}">{esc(label)}</span>'
 
@@ -76,7 +81,7 @@ def build(store, cfg: dict, profile_name: str = "") -> str:
 
     jobs_t = _table(["Score", "Tier", "Job", "Company", "Location", "Why"],
                     [[esc(j["score"]), pill(j["tier"]), _link(j["url"], j["title"] or "(untitled)"), esc(j["company"]),
-                      esc(j["location"]), f"<small>{esc(j['why'])}</small>"] for j in jobs], "No matching jobs yet.")
+                      esc(j["location"]), f"<small>{esc(j['why'])}{esc(_opinion(store, j))}</small>"] for j in jobs], "No matching jobs yet.")
     apps_t = _table(["Status", "Company", "Role", "Updated", "Source"],
                     [[pill(a["status"]), esc(a["company"]), esc(a["title"]), esc((a["updated"] or "")[:10]),
                       esc(a["source"])] for a in apps], "No applications tracked yet.")

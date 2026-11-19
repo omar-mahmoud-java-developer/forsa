@@ -15,7 +15,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import dashboard, mailbox, notify, recruiters
+from . import dashboard, judge, mailbox, notify, recruiters
 from . import llm as llmmod
 from .apply.runner import FormDriver, run_application
 from .config import env
@@ -115,6 +115,8 @@ def run(root: Path, cfg: dict, profile: Profile, store: Store, providers: list[P
 
     # 3) advice + drafts (LLM, no tools; skipped when no provider) --------------------------------
     if llm.enabled:
+        n, problems = judge.run(root, cfg, _profile_block(profile), _job_block, store, llm, int(cfg["llm"]["judge_per_run"]))
+        res.steps += problems or [f"judge (advice only): {n} job(s) judged"]
         res.drafts += _drafts(root, cfg, profile, store, llm, res)
     res.drafts += _template_drafts(root, cfg, profile, store, llm.enabled)
 

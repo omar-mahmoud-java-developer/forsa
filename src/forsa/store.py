@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS people (
   first_seen TEXT, last_seen TEXT
 );
 CREATE TABLE IF NOT EXISTS mail_seen (msgid TEXT PRIMARY KEY, at TEXT);
+CREATE TABLE IF NOT EXISTS judge (job_id TEXT PRIMARY KEY, fit TEXT NOT NULL, reason TEXT, at TEXT);
 CREATE TABLE IF NOT EXISTS runs (
   id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, dry_run INTEGER NOT NULL, summary TEXT
 );
@@ -191,6 +192,15 @@ class Store:
         n = self.db.execute("DELETE FROM people WHERE last_seen < ?", (cut,)).rowcount
         self.db.commit()
         return n
+
+    # ---- judge (LLM second opinion: advice only, never changes score, tier or actions)
+    def set_judge(self, job_id: str, fit: str, reason: str) -> None:
+        self.db.execute("INSERT OR REPLACE INTO judge VALUES (?,?,?,?)", (job_id, fit, reason, now()))
+        self.db.commit()
+
+    def judge(self, job_id: str) -> dict | None:
+        r = self.db.execute("SELECT * FROM judge WHERE job_id=?", (job_id,)).fetchone()
+        return dict(r) if r else None
 
     # ---- mailbox bookkeeping
     def mail_seen(self, msgid: str) -> bool:

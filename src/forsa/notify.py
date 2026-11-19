@@ -17,16 +17,21 @@ from .reach.web import tls_context
 from .templating import load, render
 
 
-def _rows(jobs: list[dict]) -> str:
+def _rows(jobs: list[dict], store=None) -> str:
     if not jobs:
         return "<p>none</p>"
     items = "".join(
         f"<li><b>{html.escape(j['title'] or '')}</b> at {html.escape(j['company'] or '')} "
         f"({html.escape(j['location'] or '')}) score {j['score']} "
         f"<a href='{html.escape(safe_url(j['url'] or ''))}' rel='noopener noreferrer nofollow'>link</a>"
-        f"<br><small>{html.escape(j['why'] or '')}</small></li>"
+        f"<br><small>{html.escape(j['why'] or '')}{html.escape(_verdict(store, j))}</small></li>"
         for j in jobs)
     return f"<ul>{items}</ul>"
+
+
+def _verdict(store, job: dict) -> str:
+    v = store.judge(job["id"]) if store is not None else None
+    return f" · LLM opinion: {v['fit']} ({v['reason']})" if v else ""
 
 
 def build_digest(root: Path, store, profile, cfg: dict, dry_run: bool, backends: list[str], applications: list[dict]) -> str:
@@ -42,8 +47,8 @@ def build_digest(root: Path, store, profile, cfg: dict, dry_run: bool, backends:
     mode = ("DRY RUN: nothing was sent, applied or connected." if dry_run
             else "LIVE run: actions were allowed by your safety settings.")
     return render(load(root, "digest.html"), {
-        "name": html.escape(profile.name or "you"), "mode_line": mode, "best": _rows(best),
-        "stretch": _rows(stretch), "applications": app_html, "flags": flag_html,
+        "name": html.escape(profile.name or "you"), "mode_line": mode, "best": _rows(best, store),
+        "stretch": _rows(stretch, store), "applications": app_html, "flags": flag_html,
         "backends": ", ".join(sorted(set(backends))) or "none", "generated": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
     })
 

@@ -67,7 +67,7 @@ DEFAULTS: dict[str, Any] = {
     "language": "en",
     "sources": {"enabled": ["demo"], "linkedin": {"backend_order": ["mcp", "jina"]},
                 "rss": {"feeds": []}, "plugin_options": {}},
-    "llm": {"provider": "none", "model": "", "max_calls_per_run": 10},
+    "llm": {"provider": "none", "model": "", "max_calls_per_run": 10, "judge_per_run": 10},
     "notify": {"mode": "none", "email_to": "", "smtp_host": "smtp.gmail.com", "smtp_port": 465},
     "paths": {"data_dir": "data", "output_dir": "output", "sessions_dir": "sessions"},
 }
@@ -84,7 +84,7 @@ _SCHEMA_TYPES: dict[str, type | tuple[type, ...]] = {
     "search.recruiters.max_per_run": int, "search.recruiters.keep_days": int,
     "mailbox.enabled": bool, "mailbox.imap_host": str, "mailbox.imap_port": int, "mailbox.senders": list,
     "mailbox.max_days": int, "mailbox.max_messages": int, "mailbox.require_auth": bool, "mailbox.folders": list,
-    "llm.provider": str, "llm.max_calls_per_run": int, "notify.mode": str, "notify.email_to": str,
+    "llm.provider": str, "llm.judge_per_run": int, "llm.max_calls_per_run": int, "notify.mode": str, "notify.email_to": str,
 }
 LLM_PROVIDERS = ("none", "anthropic", "claude-cli")
 NOTIFY_MODES = ("none", "email")

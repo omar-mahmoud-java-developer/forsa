@@ -48,7 +48,26 @@ def parse_detail(result, job: Job) -> Job:
         if f"\n{w}\n" in text[:800]:
             job.work_mode = {"On-site": "onsite"}.get(w, w.lower())
             break
+    contact = hiring_contact(result, text)
+    if contact:
+        job.extra["hiring_contact"] = contact
     return job
+
+
+def hiring_contact(result, text: str) -> str:
+    """Username of the person in "Meet the hiring team" (the job poster), or "" when there is none."""
+    h = text.find("Meet the hiring team")
+    if h < 0:
+        return ""
+    block = [ln.strip() for ln in text[h + 20:h + 400].split("\n") if ln.strip()]
+    name = block[0] if block else ""
+    refs = [r for group in (result.get("references", {}) if isinstance(result, dict) else {}).values() for r in group
+            if r.get("kind") == "person" and r.get("context") == "job posting"]
+    for r in refs:
+        if (r.get("text") or "").strip() == name:
+            user = r["url"].strip("/").split("/")[-1]
+            return user if re.fullmatch(r"[A-Za-z0-9%_-]{3,100}", user) else ""
+    return ""
 
 
 @register("linkedin")

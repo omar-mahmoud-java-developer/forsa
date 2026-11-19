@@ -109,7 +109,8 @@
   "llm": {
     "provider": "none",
     "model": "",
-    "max_calls_per_run": 10
+    "max_calls_per_run": 10,
+    "judge_per_run": 10
   },
   "notify": {
     "mode": "none",

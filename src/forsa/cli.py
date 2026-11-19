@@ -347,7 +347,13 @@ def cmd_schedule(a, root: Path) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="forsa", description="Safe-by-default job-search agent.")
-    ap.add_argument("--version", action="version", version=f"forsa {__version__}")
+    class _Version(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            banner.show()
+            print(f"forsa {__version__}")
+            parser.exit()
+
+    ap.add_argument("--version", action=_Version, nargs=0, help="show the version")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("init", help="create config.json, profile.md and .env, then run doctor")
     s.add_argument("--yes", action="store_true", help="no questions: use the example values")

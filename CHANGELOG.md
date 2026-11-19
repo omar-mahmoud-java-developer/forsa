@@ -1,7 +1,7 @@
 # Changelog
 All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [SemVer](https://semver.org).
 
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-11-19
 ### Added
 - Single CLI: `init`, `doctor`, `run`, `digest`, `coach`, `eval`, `status`, `answer`, `login`, `reset-session`, `schedule`.
 - SQLite state store that persists between runs, with a permanent per-job attempt limit.
@@ -15,6 +15,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
 - Docs, agent skill, `llms.txt`, issue/PR templates, DCO check, `tools/set_owner.py`.
 - Dashboard (`output/dashboard.html`), application tracker, opt-in read-only mailbox reader, opt-in recruiter search,
   digest e-mail to yourself when configured.
+- Judge (LLM second opinion, advice only), hiring-contact extraction from LinkedIn job pages, GHCR image publishing.
 ### Security
 - Pre-release audit: verified TLS for IMAP/SMTP, SSRF-safe fetching, defusedxml, linear-time mail parsing, safe links, path
   confinement, opt-in plugin import, stricter config validation, hardened Docker image and pinned CI actions
