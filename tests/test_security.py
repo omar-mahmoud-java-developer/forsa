@@ -98,6 +98,7 @@ def test_hostile_html_does_not_hang_the_mail_parser():
     _fast(lambda: mailbox.alert_jobs('<a href="linkedin.com/jobs/view/123456/">' * 30000))
     _fast(lambda: mailbox.alert_jobs('href="https://linkedin.com/jobs/view/123456/"' * 30000))
     _fast(lambda: mailbox.alert_jobs("<a " * 200000))
+    _fast(lambda: mailbox.alert_jobs("<!DOCTYPE <a <!-- <![CDATA[ <a href=\"x " * 40000))  # hangs html.parser on some 3.12.x
 
 
 def test_privacy_scan_is_bounded_on_huge_lines(tmp_path):

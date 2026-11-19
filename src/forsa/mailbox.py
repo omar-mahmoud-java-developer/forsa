@@ -24,7 +24,6 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from email.message import Message
 from email.utils import parseaddr
-from html.parser import HTMLParser
 
 from .reach.web import tls_context
 
@@ -107,46 +106,39 @@ def classify(subject: str, body_text: str) -> Update | None:
     return Update(company.strip(" .:-"), title.strip(), status)
 
 
-class _AnchorCollector(HTMLParser):
-    """Linear-time anchor extraction (a regex over hostile HTML can take quadratic time)."""
-
-    def __init__(self):
-        super().__init__(convert_charrefs=True)
-        self.links: list[tuple[str, str]] = []
-        self._href: str | None = None
-        self._text: list[str] = []
-
-    def handle_starttag(self, tag, attrs):
-        if tag == "a":
-            self._flush()
-            self._href = dict(attrs).get("href") or ""
-            self._text = []
-
-    def handle_data(self, data):
-        if self._href is not None and sum(map(len, self._text)) < 300:
-            self._text.append(data)
-
-    def handle_endtag(self, tag):
-        if tag == "a":
-            self._flush()
-
-    def _flush(self):
-        if self._href is not None:
-            self.links.append((self._href, " ".join("".join(self._text).split())))
-        self._href, self._text = None, []
+MAX_ANCHORS = 500
+_ANCHOR_WINDOW = 2500
 
 
 def alert_jobs(html_body: str) -> list[AlertJob]:
-    """LinkedIn job links in an alert email (id + link text). Nothing is executed or fetched."""
-    parser = _AnchorCollector()
-    parser.feed((html_body or "")[:MAX_MESSAGE_BYTES])
-    parser.close()
-    parser._flush()
+    """LinkedIn job links in an alert email (id + link text). Nothing is executed or fetched.
+
+    A hand-written bounded scanner on purpose: the stdlib HTML parser can loop forever on hostile input in some
+    Python 3.12 releases, and regexes over hostile HTML can take quadratic time. Work here is capped per anchor
+    and in total."""
+    body = (html_body or "")[:MAX_MESSAGE_BYTES]
+    low = body.lower()
     out, seen = [], set()
-    for href, text in parser.links:
-        m = _JOB_HREF.search(href)
-        title = _clean(text)
-        if not m or m.group(1) in seen or not title or _GENERIC.match(title):
+    pos = anchors = 0
+    while anchors < MAX_ANCHORS:
+        i = low.find("<a", pos)
+        if i < 0:
+            break
+        pos = i + 2
+        if low[i + 2:i + 3] not in (" ", "\t", "\n", "\r"):
+            continue
+        anchors += 1
+        window = body[i:i + _ANCHOR_WINDOW]
+        end = window.find(">")
+        if end < 0:
+            continue
+        m = _JOB_HREF.search(window[:end])
+        if not m or m.group(1) in seen:
+            continue
+        close = window.lower().find("</a", end)
+        inner = window[end + 1:close] if close > 0 else window[end + 1:end + 601]
+        title = _clean(inner)
+        if not title or _GENERIC.match(title):
             continue
         seen.add(m.group(1))
         out.append(AlertJob(m.group(1), title[:120]))

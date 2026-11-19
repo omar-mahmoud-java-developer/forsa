@@ -29,7 +29,7 @@ linkedin = [
 ]
 llm = ["anthropic==2.10.0"]
 apply = ["patchright==1.64.4"]
-dev = ["pytest==9.2.0", "ruff==0.17.5"]
+dev = ["pytest==9.2.0", "pytest-timeout==2.4.0", "ruff==0.17.5"]
 
 [project.urls]
 Author = "https://www.linkedin.com/in/omar-qenawy12/"
@@ -46,6 +46,7 @@ packages = ["src/forsa"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+timeout = 120
 
 [tool.ruff]
 line-length = 125
